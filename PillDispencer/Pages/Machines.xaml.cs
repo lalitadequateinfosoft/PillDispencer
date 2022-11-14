@@ -29,19 +29,7 @@ namespace PillDispencer.Pages
         public Machines()
         {
             InitializeComponent();
-            var MyListItems = GetMyListItems();
-            if (MyListItems.Count > 0)
-            {
-                ListViewItems.ItemsSource = MyListItems;
-            }
         }
-        private List<MyListItems> GetMyListItems()
-        {
-            return new List<MyListItems>()
-            {
-                new MyListItems("/Icons/pill.png",10)
-            };
-
-        }
+        
     }
 }
