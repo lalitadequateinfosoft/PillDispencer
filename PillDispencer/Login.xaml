@@ -158,7 +158,8 @@
                                     Width="120"
                                     Height="50"
                                    HorizontalAlignment="Right"
-                                    Margin="0,25">
+                                    Margin="0,25"
+                                    Click="LoginButton_Click">
                                     <Button.Resources>
                                         <Style TargetType="{x:Type Border}">
                                             <Setter Property="CornerRadius" Value="6,14,14,14"/>

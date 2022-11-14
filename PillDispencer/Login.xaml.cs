@@ -36,5 +36,19 @@ namespace PillDispencer
                 this.Close();
             }
         }
+
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(this.DataContext is LoginViewModel model)
+            {
+                if(!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.Password))
+                {
+                    MainWindow main = new MainWindow();
+                    main.Show();
+                    this.Close();
+                         
+                }
+            }
+        }
     }
 }
