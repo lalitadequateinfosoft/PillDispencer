@@ -155,6 +155,7 @@
                                     FontSize="18"
                                     FontWeight="Bold"
                                     Content="LOGIN"
+                                    Click="LoginButton_Click"
                                     Width="120"
                                     Height="50"
                                    HorizontalAlignment="Right"

@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace PillDispencer
@@ -35,6 +36,11 @@ namespace PillDispencer
             {
                 this.Close();
             }
+        }
+
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+           
         }
     }
 }

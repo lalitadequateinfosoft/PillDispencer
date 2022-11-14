@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PillDispencer.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="700" d:DesignWidth="1360"
       Title="HMI">
 
     <Grid>
@@ -19,7 +19,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="Pill Dispenser - 5" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
+            <TextBlock Text="Pill Dispenser - 05" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="25" FontWeight="Bold"/>
 
             <Grid Grid.Row="1" Background="White">
                 <Grid.RowDefinitions>
@@ -80,22 +80,22 @@
                         Height="40" HorizontalAlignment="Left" Margin="188,0,0,0" VerticalAlignment="Center"/>
             </Grid>
         </Grid>
-        <Grid Grid.Column="1" Margin="10,3,3,3">
+        <Grid Grid.Column="1" Margin="10,3,3,3" RenderTransformOrigin="0.501,0.625">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <StackPanel Orientation="Vertical" Grid.Row="0">
-                <TextBlock Text="Set Point 01" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <StackPanel Orientation="Vertical" Grid.Row="0" Margin="20,20,20,114" Grid.RowSpan="2">
+                <TextBlock Text="Set Point 01" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Background="White">
-                    <RadioButton Content="100%" VerticalAlignment="Center" Margin="3"/>
-                    <RadioButton Content="50%" VerticalAlignment="Center" IsChecked="True" Margin="3"/>
-                    <RadioButton Content="20%" VerticalAlignment="Center" Margin="3"/>
-                    <RadioButton Content="10%" VerticalAlignment="Center" Margin="3"/>
-                    <RadioButton Content="CUSTOM VALUE" VerticalAlignment="Center" Margin="3"/>
-                    <TextBox Height="30" Width="150" HorizontalAlignment="Right" Margin="3" VerticalAlignment="Center"/>
+                    <RadioButton Content="100%" VerticalAlignment="Center" Margin="3"  FontSize="20" HorizontalContentAlignment="Center" HorizontalAlignment="Center"/>
+                    <RadioButton Content="50%" VerticalAlignment="Center" IsChecked="True" Margin="5" FontSize="20"/>
+                    <RadioButton Content="20%" VerticalAlignment="Center" Margin="3" FontSize="20"/>
+                    <RadioButton Content="10%" VerticalAlignment="Center" Margin="3" FontSize="20"/>
+                    <RadioButton Content="CUSTOM VALUE" VerticalAlignment="Center" Margin="3" FontSize="20"/>
+                    <TextBox Height="50" Padding="10" Margin="3" VerticalAlignment="Center" Width="569"/>
                 </StackPanel>
             </StackPanel>
             <Grid Grid.Row="1">
@@ -103,20 +103,20 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Vertical" Grid.Column="0" Background="White">
-                    <TextBlock Text="Set Point 02" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <StackPanel Orientation="Vertical" Grid.Column="0" Margin="20,20,20,-114" Background="White">
+                    <TextBlock Text="Set Point 02" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="16"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <RadioButton Content="5%" VerticalAlignment="Center" Margin="3"/>
-                        <RadioButton Content="CUSTOM VALUE" VerticalAlignment="Center" Margin="3" IsChecked="True"/>
-                        <TextBox Height="30" Background="#B2BEB5" Width="100" HorizontalAlignment="Right" Margin="3" VerticalAlignment="Center"/>
+                        <RadioButton Content="5%" VerticalAlignment="Center" Margin="3" FontSize="20"/>
+                        <RadioButton Content="CUSTOM VALUE" VerticalAlignment="Center" FontSize="20" Margin="3" IsChecked="True"/>
+                        <TextBox Height="50" Background="#B2BEB5" Width="260" Margin="3" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="3,30,3,3">
-                        <RadioButton Content="GREEN" VerticalAlignment="Center" Margin="3"/>
-                        <RadioButton Content="YELLOW" VerticalAlignment="Center" Margin="3"/>
-                        <RadioButton Content="RED" VerticalAlignment="Center" Margin="3"/>
+                    <StackPanel Orientation="Horizontal" Margin="3,30,3,3" Height="157">
+                        <RadioButton Content="GREEN" FontSize="20" VerticalAlignment="Center"/>
+                        <RadioButton Content="YELLOW" VerticalAlignment="Center" Margin="3" FontSize="20"/>
+                        <RadioButton Content="RED" VerticalAlignment="Center" Margin="3" FontSize="20"/>
                     </StackPanel>
                 </StackPanel>
-                <Grid Grid.Column="1" Margin="10,3,3,3" Background="White">
+                <Grid Grid.Column="1" Margin="10,3,3,-122" Background="White">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
@@ -127,28 +127,32 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="CELIBRATION" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3" FontSize="15"/>
-                    <Button Content="ZERO" Grid.Column="0" Grid.Row="1" Width="70" Background="#818589" FontWeight="Bold" Foreground="White"
-                        Height="40" HorizontalAlignment="Left" Margin="3" VerticalAlignment="Center"/>
-                    <Button Content="#####" Grid.Column="1" Grid.Row="1" Width="70" Background="#B2BEB5" FontWeight="Bold" Foreground="White"
-                        Height="40" HorizontalAlignment="Right" Margin="3" VerticalAlignment="Center"/>
-                    <Button Content="SPAN" Grid.Column="0" Grid.Row="2" Width="70" Background="#818589" FontWeight="Bold" Foreground="White"
-                        Height="40" HorizontalAlignment="Left" Margin="3" VerticalAlignment="Center"/>
-                    <Button Content="####" Grid.Column="1" Grid.Row="2" Width="70" Background="#B2BEB5" FontWeight="Bold" Foreground="White"
-                        Height="40" HorizontalAlignment="Right" Margin="3" VerticalAlignment="Center"/>
-                    <Button Content="SAVE" Grid.Column="0" Grid.Row="3" Width="70" Background="#45a7ed" FontWeight="Bold" Foreground="White"
-                        Height="40" HorizontalAlignment="Left" Margin="3" VerticalAlignment="Center"/>
-                    <Button Content="RESET" Grid.Column="1" Grid.Row="3" Width="70" Background="Red" FontWeight="Bold" Foreground="White"
-                        Height="40" HorizontalAlignment="Right" Margin="3" VerticalAlignment="Center"/>
+                    <TextBlock Text="CELIBRATION" Background="#B2BEB5" Grid.Column="0" VerticalAlignment="Center" Margin="3,0,1,0" FontSize="15" Height="34" Grid.ColumnSpan="2"/>
+                    <Button Content="ZERO" Grid.Column="0" Grid.Row="1" Width="167" Background="#818589" FontWeight="Bold" Foreground="White"
+                        Height="60" HorizontalAlignment="Left" Margin="3,0,0,0" VerticalAlignment="Center"/>
+                    <Button Content="#####" Grid.Column="1" Grid.Row="1" Width="151" Background="#B2BEB5" FontWeight="Bold" Foreground="White"
+                        Height="60" HorizontalAlignment="Left" Margin="102,0,0,0" VerticalAlignment="Center"/>
+                    <Button Content="SPAN" Grid.Column="0" Grid.Row="2" Width="167" Background="#818589" FontWeight="Bold" Foreground="White"
+                        Height="60" HorizontalAlignment="Left" Margin="3,0,0,0" VerticalAlignment="Center"/>
+                    <Button Content="####" Grid.Column="1" Grid.Row="2" Width="151" Background="#B2BEB5" FontWeight="Bold" Foreground="White"
+                        Height="60" HorizontalAlignment="Left" Margin="102,0,0,0" VerticalAlignment="Center"/>
+                    <Button Content="SAVE" Grid.Column="0" Grid.Row="3" Width="167" Background="#45a7ed" FontWeight="Bold" Foreground="White"
+                        Height="60" HorizontalAlignment="Left" Margin="3,0,0,0" VerticalAlignment="Center"/>
+                    <Button Content="RESET" Grid.Column="1" Grid.Row="3" Width="151" Background="Red" FontWeight="Bold" Foreground="White"
+                        Height="60" HorizontalAlignment="Left" Margin="102,0,0,0" VerticalAlignment="Center"/>
                 </Grid>
 
             </Grid>
-            <Grid Grid.Row="2">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Content="RUN" Grid.Column="0" Width="70" Background="LightBlue" FontWeight="Bold" Foreground="White"
-                        Height="40" HorizontalAlignment="Left" Margin="3" VerticalAlignment="Center"/>
-                    <Button Content="NEXT BATCH" Grid.Column="1" Width="70" Background="LightGray" FontWeight="Bold" Foreground="White"
-                        Height="40" HorizontalAlignment="Right" Margin="3" VerticalAlignment="Center"/>
+            <Grid Grid.Row="3" Margin="0,86,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="332*"/>
+                    <ColumnDefinition Width="17*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="3" Width="Auto">
+                    <Button Content="RUN" Grid.Column="0" Width="174" Background="#45a7ed" FontWeight="Bold" Foreground="White"
+                        Height="80" Margin="3" VerticalAlignment="Center"/>
+                    <Button Content="NEXT BATCH" Grid.Column="1" Width="187" Background="Gray" FontWeight="Bold" Foreground="White"
+                        Height="80" Margin="3" VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
         </Grid>
