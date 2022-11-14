@@ -7,11 +7,27 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace PillDispencer.ViewModel
 {
     public class LoginViewModel:INotifyPropertyChanged
     {
+        private ICommand loginCommand { get; set; }
+        public ICommand LoginCommand
+        {
+            get
+            {
+                return loginCommand;
+            }
+            set
+            {
+                loginCommand = value;
+            }
+        }
+
+        private bool canExecute = true;
+
         public LoginViewModel()
         {
             Username = "edward.2022";
@@ -40,6 +56,8 @@ namespace PillDispencer.ViewModel
                 OnPropertyChanged(nameof(Password));
             }
         }
+
+        
 
         #region property changed event
 
