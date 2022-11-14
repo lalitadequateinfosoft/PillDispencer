@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PillDispencer.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +20,21 @@ namespace PillDispencer
     /// </summary>
     public partial class Login : Window
     {
+        LoginViewModel loginViewModel;
         public Login()
         {
+            loginViewModel=new LoginViewModel();
             InitializeComponent();
+            this.DataContext = loginViewModel;
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure?", "you want to exit", System.Windows.MessageBoxButton.YesNo);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                this.Close();
+            }
         }
     }
 }

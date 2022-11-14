@@ -16,26 +16,19 @@ using System.Windows.Shapes;
 namespace PillDispencer.Pages
 {
     /// <summary>
-    /// Interaction logic for HMICard.xaml
+    /// Interaction logic for Machines.xaml
     /// </summary>
-    public partial class HMICard : Page
+    public partial class Machines : Page
     {
-        public HMICard()
+        MainWindow parentWindow;
+        public MainWindow ParentWindow
+        {
+            get { return parentWindow; }
+            set { parentWindow = value; }
+        }
+        public Machines()
         {
             InitializeComponent();
-            var MyListItems = GetMyListItems();
-            if (MyListItems.Count > 0)
-            {
-                ListViewItems.ItemsSource = MyListItems;
-            }
-        }
-        private List<MyListItems> GetMyListItems()
-        {
-            return new List<MyListItems>()
-            {
-                new MyListItems("/Icons/pill.png",10)
-            };
-
         }
     }
 }
