@@ -78,10 +78,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\HMICard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model.cs" />
     <Compile Include="Pages\HMI.xaml.cs">
       <DependentUpon>HMI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\HMICard.xaml.cs">
+      <DependentUpon>HMICard.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
