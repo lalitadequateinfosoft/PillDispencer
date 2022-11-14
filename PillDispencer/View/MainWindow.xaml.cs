@@ -12,13 +12,19 @@ namespace PillDispencer
     public partial class MainWindow : Window
     {
         Machines child;
+        HMI machine;
 
         public MainWindow()
         {
             InitializeComponent();
-            child = new Machines();
-            child.ParentWindow = this;
-           this.frame.Navigate(child);
+            // child = new Machines();
+            // child.ParentWindow = this;
+            //this.frame.Navigate(child);
+
+
+            machine = new HMI();
+            machine.ParentWindow = this;
+            this.frame.Navigate(machine);
         }
 
         #region custom window functions

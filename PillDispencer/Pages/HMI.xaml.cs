@@ -20,6 +20,12 @@ namespace PillDispencer.Pages
     /// </summary>
     public partial class HMI : Page
     {
+        MainWindow parentWindow;
+        public MainWindow ParentWindow
+        {
+            get { return parentWindow; }
+            set { parentWindow = value; }
+        }
         public HMI()
         {
             InitializeComponent();
