@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PillDispencer.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using PillDispencer.Model;
 
 namespace PillDispencer.Pages
 {
@@ -29,7 +31,16 @@ namespace PillDispencer.Pages
         public Machines()
         {
             InitializeComponent();
+            var machineitms = GetMachineItems();
+
         }
-        
+        private List<MachineItems> GetMachineItems()
+        {
+            return new List<MachineItems>
+            {
+            };
+        }
+
+
     }
 }
