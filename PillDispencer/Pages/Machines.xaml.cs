@@ -1,4 +1,5 @@
 ﻿using PillDispencer.Model;
+using PillDispencer.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using PillDispencer.Model;
 
 namespace PillDispencer.Pages
 {
@@ -28,19 +28,38 @@ namespace PillDispencer.Pages
             get { return parentWindow; }
             set { parentWindow = value; }
         }
+
+        MachineViewModel machineViewModel;
         public Machines()
         {
+            machineViewModel = new MachineViewModel();
             InitializeComponent();
-            var machineitms = GetMachineItems();
-
+            this.DataContext = machineViewModel;
         }
-        private List<MachineItems> GetMachineItems()
+
+        private void Add_Click(object sender, RoutedEventArgs e)
         {
-            return new List<MachineItems>
+            if(this.DataContext is MachineViewModel model)
             {
-            };
+                model.AddMachines(new MachinesModel
+                {
+                    DeviceId ="01",
+                    PortName ="01",
+                    BaudRate =13500,
+                    DataBit =8,
+                    StopBit =0,
+                    Parity =0,
+                    SlaveAddress =1,
+                    IsActive =true
+                });
+            }
         }
 
-
+        private void Run_Click(object sender, RoutedEventArgs e)
+        {
+            HMI hMI = new HMI();
+            hMI.ParentWindow = ParentWindow;
+            ParentWindow.frame.Navigate(hMI);
+        }
     }
 }

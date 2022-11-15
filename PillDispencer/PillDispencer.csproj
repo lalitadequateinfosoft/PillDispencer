@@ -96,11 +96,13 @@
     <Compile Include="Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Model\MachinesModel.cs" />
     <Compile Include="Pages\Machines.xaml.cs">
       <DependentUpon>Machines.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\MyListItems.cs" />
     <Compile Include="ViewModel\LoginViewModel.cs" />
+    <Compile Include="ViewModel\MachineViewModel.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -111,7 +113,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Model.cs" />
     <Compile Include="Pages\HMI.xaml.cs">
       <DependentUpon>HMI.xaml</DependentUpon>
     </Compile>

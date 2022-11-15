@@ -6,107 +6,211 @@
       xmlns:fa="http://schemas.fontawesome.io/icons/"
       xmlns:local="clr-namespace:PillDispencer.Pages"
       mc:Ignorable="d" 
-      d:Width="1300"
-      Height="600"
+      d:DesignHeight="450"
+      d:DesignWidth="800"
       Background="#eeeeee"
       Title="Machines">
 
-    <Grid>
+    <Grid >
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" FontSize="20" FontWeight="Bold" HorizontalAlignment="Left" Margin="25" VerticalAlignment="Center" Text="Pill Dispenser Machines"/>
-        <Button 
-                                    x:Name="LoginButton"
+        <Grid Grid.Row="0" Margin="30,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       Text="Pill Dispenser Machines"
+                       Padding="0"
+                       Margin="0"/>
+            <StackPanel Grid.Column="1" >
+                <Button 
+                                    x:Name="Add"
                                     Background="#0082ca"
-                                    Grid.Row="0"
+                                    Grid.Column="1"
                                     BorderBrush="#0082ca"
                                     Foreground="White"
                                     BorderThickness="1"
-                                    FontSize="18"
-                                    FontWeight="Bold"
-                                    Content="ADD NEW    "
-                                    Click="LoginButton_Click"
-                                    Width="140"
-                                    Height="60"
-                                   HorizontalAlignment="Right"
-                                    Margin="0,0,25,0">
-            <Button.Resources>
-                <Style TargetType="{x:Type Border}">
-                    <Setter Property="CornerRadius" Value="6,6,6,6"/>
-                </Style>
-            </Button.Resources>
-        </Button>
-        <ItemsControl x:Name="MachineitemList" ItemsSource="{Binding MachineItems}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid Grid.Row="1" Margin="3">
-                        <Border 
-                            BorderBrush="#4a4a4a"
-                            Background="White"
+                                    FontSize="16"
+                                    FontWeight="Medium"
+                                    Content="ADD NEW"
+                                    Click="Add_Click"
+                                    Width="100"
+                                    Height="35">
+                    <Button.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="2"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                <Button       
+                                    x:Name="Run"
+                                    Click="Run_Click"
+                                    Background="#1ac41b"
+                                    Grid.Column="1"
+                                    BorderBrush="#1ac41b"
+                                    Foreground="White"
+                                    BorderThickness="1"
+                                    FontSize="16"
+                                    FontWeight="Medium"
+                                    Content="RUN"
+                                    Width="100"
+                                    Height="35">
+                    <Button.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="2"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+            
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="15,10">
+            <ItemsControl ItemsSource="{Binding Path=Machines}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        
+                            <Border 
+                            BorderBrush="White"
                             BorderThickness="1"
                             Padding="15"
                             Grid.Row="0"
-                            Margin="5">
-                            <Grid>
-                                <Grid.Background>
-                                    <ImageBrush ImageSource="/Icons/pill.png" />
-                                </Grid.Background>
+                            Margin="0,0,15,15"
+                            Width="230"
+                            Height="180"
+                            Background="White"
+                            CornerRadius="8"
+                                >
+                              <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
-                                    <Image Source="/Icons/setting.png"  HorizontalAlignment="Right" Height="50" Width="50"/>
+                                    <Image Source="/Icons/setting.png" Stretch="UniformToFill" HorizontalAlignment="Right" Width="20" Height="20"/>
                                 </Grid>
-                                <Border Grid.Row="1"
-                                        Margin="25">
-                                </Border>
-                                <Grid Grid.Row="1" Margin="30">
+                                <Grid Grid.Row="1">
+                                    <Image Source="/Icons/pill.png" Stretch="Uniform" />
+                                </Grid>
+                                <Grid Grid.Row="2">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
-                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
                                     <Grid Grid.Row="0">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Label Content="STATUS" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="36" Width="110"/>
-                                        <Label Content="60% COMPPLETED" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="36"/>
+                                        <Label Content="STATUS"
+                                               Grid.Column="0"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center"
+                                               FontSize="10"
+                                              FontWeight="Bold"
+                                               Foreground="#6d6d6d"/>
+                                        <Label Content="60 % COMPLETED"
+                                               Grid.Column="1"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               FontSize="10"
+                                              FontWeight="Bold"
+                                               Foreground="#6d6d6d"/>
                                     </Grid>
-                                    <ProgressBar Minimum="0" Maximum="100"  Margin="10,10,0,0" Name="PBar" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="1211" Height="30" Value="60" >
+                                    <ProgressBar
+                                        Minimum="0"
+                                        Maximum="100"
+                                        Grid.Row="1"
+                                        Value="60"
+                                        Background="#9e9e9e"
+                                        Height="10"
+                                        Foreground="#1ac41b"
+                                        >
+                                        <ProgressBar.Resources>
+                                            <Style TargetType="{x:Type Border}">
+                                                <Setter Property="CornerRadius" Value="6,6,6,6"/>
+                                            </Style>
+                                        </ProgressBar.Resources>
                                     </ProgressBar>
                                 </Grid>
-                                <Border Grid.Row="2" CornerRadius="0,0,10,10" Grid.Column="0" Background="#4a4a4a" Padding="13,15,12,18">
-                                    <Grid Grid.Row="2" Height="100">
+                                <Border Grid.Row="3" Margin="0" Padding="0,5,0,0">
+                                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <StackPanel Orientation="Vertical" Grid.Column="0">
-                                            <Label Content="MACHINE NO." FontSize="20" Foreground="White"/>
-                                            <Label Content="01" FontSize="30" FontWeight="Bold" Foreground="White"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Vertical" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch">
-                                            <ToggleButton Width="50" Height="30"/>
-                                            <Label Content="ACTIVE" Foreground="White" FontSize="16"/>
-                                        </StackPanel>
+                                        <Grid Grid.Column="0">
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                                <StackPanel>
+                                                    <Label 
+                                                        Content="MACHINE NO."
+                                                        Grid.Column="1"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="10"
+                                                        FontWeight="Bold"
+                                                        Foreground="#6d6d6d"/>
+                                                </StackPanel>
+                                                <StackPanel>
+                                                    <Label 
+                                                        Content="01"
+                                                        Grid.Column="1"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="18"
+                                                        FontWeight="Bold"
+                                                        Foreground="#6d6d6d"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Grid.Column="1">
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Right">
+                                                <StackPanel>
+                                                    <ToggleButton 
+                                                        IsChecked="{Binding Path=IsActive,Mode=TwoWay}"
+                                                        Style="{DynamicResource ToggleButtonStyle}"
+                                                        FontSize="14"
+                                                        Background="#1ac41b"
+                                                        Width="35"
+                                                        Height="30"/>
+                                                </StackPanel>
+                                                <StackPanel>
+                                                    <Label 
+                                                        Content="ACTIVE"
+                                                        Grid.Column="1"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="10"
+                                                        FontWeight="Bold"
+                                                        Foreground="#6d6d6d"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Grid>
                                     </Grid>
                                 </Border>
                             </Grid>
-                        </Border>
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        
+                            </Border>
+                        
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </Page>

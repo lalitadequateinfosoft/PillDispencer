@@ -154,10 +154,11 @@
                                                  x:Name="HundredCheck"
                                                  Content="100%"
                                                  IsChecked="False"
-                                                 BorderBrush="#4a4a4a" 
+                                                 BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
+                                                 Foreground="#b8b8b8"
                                                  FontSize="16"/>
                                     <RadioButton GroupName="WeightPoint"
                                                  x:Name="fiftyCheck"
@@ -168,37 +169,41 @@
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
-                                                 FontSize="16"/>
+                                                 FontSize="16"
+                                                 Foreground="#b8b8b8"/>
                                     <RadioButton GroupName="WeightPoint"
                                                  x:Name="TwentyCheck"
                                                  Content="20%"
                                                  IsChecked="False"
-                                                 BorderBrush="#4a4a4a" 
+                                                 BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
-                                                 FontSize="16"/>
+                                                 FontSize="16"
+                                                 Foreground="#b8b8b8"/>
                                     <RadioButton GroupName="WeightPoint"
                                                  x:Name="TenCheck"
                                                  Content="10%"
                                                  IsChecked="False"
-                                                 BorderBrush="#4a4a4a" 
+                                                 BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
-                                                 FontSize="16"/>
+                                                 FontSize="16"
+                                                 Foreground="#b8b8b8"/>
                                     <RadioButton GroupName="WeightPoint"
                                                  x:Name="CustomCheck"
                                                  Content="Custom Value"
                                                  IsChecked="False"
-                                                 BorderBrush="#4a4a4a" 
+                                                 BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
-                                                 FontSize="16"/>
+                                                 FontSize="16"
+                                                 Foreground="#b8b8b8"/>
                                     <TextBox 
                                         x:Name="WeightCheckCustomValue"
                                         BorderBrush="#4a4a4a"
@@ -236,22 +241,24 @@
                                                  x:Name="fiveCheck"
                                                  Content="5%"
                                                  IsChecked="False"
-                                                 BorderBrush="#4a4a4a" 
+                                                 BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
-                                                 FontSize="16"/>
+                                                 FontSize="16"
+                                                 Foreground="#b8b8b8"/>
 
                                             <RadioButton GroupName="WeightPoint"
                                                  x:Name="CustomControlCheck"
                                                  Content="Custom Value"
                                                  IsChecked="False"
-                                                 BorderBrush="#4a4a4a" 
+                                                 BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
-                                                 FontSize="16"/>
+                                                 FontSize="16"
+                                                 Foreground="#b8b8b8"/>
                                             <TextBox 
                                         x:Name="ControlCheckCustomValue"
                                         BorderBrush="#4a4a4a"
@@ -277,7 +284,29 @@
                                         Background="White"
                                         CornerRadius="8"
                                         Margin="5,0,5,0">
-                                        
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <Label Grid.Row="0"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Foreground="#404040"
+                                                   HorizontalAlignment="Right"
+                                                   Content="OFF"/>
+                                            <RadioButton Grid.Row="1"
+                                                         Content="GREEN"
+                                                         BorderBrush="#e6e6e6"
+                                                         Background="#cecece"
+                                                         BorderThickness="20"
+                                                         HorizontalAlignment="Center"
+                                                         VerticalAlignment="Top"
+                                                         HorizontalContentAlignment="Center"
+                                                         VerticalContentAlignment="Center"
+                                                         FontSize="14"
+                                                         Foreground="#b8b8b8"/>
+                                        </Grid>
                                     </Border>
                                     <Border 
                                         Grid.Column="1"
@@ -286,7 +315,29 @@
                                         CornerRadius="8"
                                         Margin="5,0,5,0"
                                         >
-
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <Label Grid.Row="0"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Foreground="#404040"
+                                                   HorizontalAlignment="Right"
+                                                   Content="OFF"/>
+                                            <RadioButton Grid.Row="1"
+                                                         Content="GREEN"
+                                                         BorderBrush="#e6e6e6"
+                                                         Background="#cecece"
+                                                         BorderThickness="20"
+                                                         HorizontalAlignment="Center"
+                                                         VerticalAlignment="Top"
+                                                         HorizontalContentAlignment="Center"
+                                                         VerticalContentAlignment="Center"
+                                                         FontSize="14"
+                                                         Foreground="#b8b8b8"/>
+                                        </Grid>
                                     </Border>
                                     <Border 
                                         Grid.Column="2"
@@ -295,7 +346,29 @@
                                         CornerRadius="8"
                                         Margin="5,0,5,0"
                                         >
-
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <Label Grid.Row="0"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Foreground="#404040"
+                                                   HorizontalAlignment="Right"
+                                                   Content="OFF"/>
+                                            <RadioButton Grid.Row="1"
+                                                         Content="GREEN"
+                                                         BorderBrush="#e6e6e6"
+                                                         Background="#cecece"
+                                                         BorderThickness="20"
+                                                         HorizontalAlignment="Center"
+                                                         VerticalAlignment="Top"
+                                                         HorizontalContentAlignment="Center"
+                                                         VerticalContentAlignment="Center"
+                                                         FontSize="14"
+                                                         Foreground="#b8b8b8"/>
+                                        </Grid>
                                     </Border>
                                 </Grid>
                             </Grid>
