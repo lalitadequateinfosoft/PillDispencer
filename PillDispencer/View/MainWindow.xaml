@@ -10,14 +10,14 @@
         Background="Transparent"
         Height="650"
         Width="1020"
-        WindowState="Normal"
         WindowStyle="None"
-       ResizeMode="NoResize"
+        ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Icon="icon.ico">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
+   
     <Window.Resources>
         <ResourceDictionary>
             <Style x:Key="TitleBarButtonStyle" TargetType="Button">
@@ -100,6 +100,7 @@
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid x:Name="customTitlebar" Grid.Row="0" Background="#4a4a4a" VerticalAlignment="Center">
@@ -118,23 +119,16 @@
 		Source="icon.ico"
         VerticalAlignment="Center" />
             <Grid Grid.Column="1" Margin="5,0,5,0" VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                
                 <TextBlock
-		Grid.Column="0"
 		VerticalAlignment="Center"
         FontWeight="Bold"
 		FontSize="14"
 		Text="PILL DISPENSER"
         Foreground="White"/>
-                <Grid>
-
-                </Grid>
 
             </Grid>
-
+            
             <Button
 		Grid.Column="2"
                  Width="35"
@@ -171,7 +165,25 @@
                 <fa:FontAwesome Icon="Close" FontSize="10" FontWeight="Normal" />
             </Button>
         </Grid>
-        <Grid Grid.Row="1" Background="#eeeeee">
+        <Grid Grid.Row="1">
+            <Button 
+                Content="VIEW MACHINES"
+                Click="INTERFACE_Click"
+                Background="#0082ca"
+                BorderBrush="#0082ca"
+                Foreground="White"
+                BorderThickness="1"
+                FontSize="16"
+                FontWeight="Medium"
+                Tag="MACHINES">
+                <Button.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="2"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="2" Background="#eeeeee">
             <Frame Grid.Row="1"
                    Name="frame"
                    NavigationUIVisibility="Hidden"

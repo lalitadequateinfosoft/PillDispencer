@@ -69,6 +69,8 @@ namespace PillDispencer.ViewModel
             }
         }
 
+        
+
         private decimal _Zero;
         public decimal Zero
         {
@@ -113,6 +115,18 @@ namespace PillDispencer.ViewModel
             }
         }
 
+
+        private bool _CustomSetPointChecked1;
+        public bool CustomSetPointChecked1
+        {
+            get => _CustomSetPointChecked1;
+            set
+            {
+                _CustomSetPointChecked1 = value;
+                OnPropertyChanged(nameof(CustomSetPointChecked1));
+            }
+        }
+
         private decimal _CustomSetPoint1;
         public decimal CustomSetPoint1
         {
@@ -121,6 +135,18 @@ namespace PillDispencer.ViewModel
             {
                 _CustomSetPoint1 = value;
                 OnPropertyChanged(nameof(CustomSetPoint1));
+            }
+        }
+
+
+        private bool _CustomSetPointChecked2;
+        public bool CustomSetPointChecked2
+        {
+            get => _CustomSetPointChecked2;
+            set
+            {
+                _CustomSetPointChecked2 = value;
+                OnPropertyChanged(nameof(CustomSetPointChecked2));
             }
         }
         private decimal _CustomSetPoint2;
@@ -133,6 +159,67 @@ namespace PillDispencer.ViewModel
                 OnPropertyChanged(nameof(CustomSetPoint2));
             }
         }
+
+        private bool _HundChecked;
+
+        public bool HundChecked
+        {
+            get => _HundChecked;
+            set
+            {
+                _HundChecked = value;
+                OnPropertyChanged(nameof(HundChecked));
+            }
+        }
+
+        private bool _FifChecked;
+
+        public bool FifChecked
+        {
+            get => _FifChecked;
+            set
+            {
+                _FifChecked = value;
+                OnPropertyChanged(nameof(FifChecked));
+            }
+        }
+
+        private bool _TweChecked;
+
+        public bool TweChecked
+        {
+            get => _TweChecked;
+            set
+            {
+                _TweChecked = value;
+                OnPropertyChanged(nameof(TweChecked));
+            }
+        }
+
+        private bool _TenChecked;
+
+        public bool TenChecked
+        {
+            get => _TenChecked;
+            set
+            {
+                _TenChecked = value;
+                OnPropertyChanged(nameof(TenChecked));
+            }
+        }
+
+        private bool _FivChecked;
+
+        public bool FivChecked
+        {
+            get => _FivChecked;
+            set
+            {
+                _FivChecked = value;
+                OnPropertyChanged(nameof(FivChecked));
+            }
+        }
+
 
         #region property changed event
 

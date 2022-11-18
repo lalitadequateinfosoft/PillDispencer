@@ -2,7 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
-
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace PillDispencer
 {
@@ -11,8 +12,9 @@ namespace PillDispencer
     /// </summary>
     public partial class MainWindow : Window
     {
-        Machines child;
-        HMI machine;
+        public static RoutedCommand MyCommand = new RoutedCommand();
+        Machines machine;
+        HMI hMI;
 
         public MainWindow()
         {
@@ -22,10 +24,33 @@ namespace PillDispencer
             //this.frame.Navigate(child);
 
 
-            machine = new HMI();
-            machine.ParentWindow = this;
-            this.frame.Navigate(machine);
+            // Configure open file dialog box
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.Title = "Select your project";
+            dialog.DefaultExt = ".json"; // Default file extension
+            dialog.Filter = "PillDispencer Files (*.json)|*.json"; // Filter files by extension
+
+            // Show open file dialog box
+            bool? result = dialog.ShowDialog();
+
+            // Process open file dialog box results
+            if (result == true)
+            {
+                // Open document
+                hMI = new HMI();
+                hMI.ParentWindow = this;
+                this.frame.Navigate(hMI);
+            }
+            else
+            {
+                machine = new Machines();
+                machine.ParentWindow = this;
+                this.frame.Navigate(machine);
+            }
+
+
         }
+
 
         #region custom window functions
 
@@ -77,6 +102,37 @@ namespace PillDispencer
 
 
 
+
         #endregion
+
+
+        private void MACHINE_Click(object sender, RoutedEventArgs e)
+        {
+            machine = new Machines();
+            machine.ParentWindow = this;
+            this.frame.Navigate(machine);
+        }
+        private void INTERFACE_Click(object sender, RoutedEventArgs e)
+        {
+
+            var BTN = sender as Button;
+            if(BTN.Tag.ToString().ToLower()=="machines")
+            {
+                BTN.Tag = "INTERFACE";
+                BTN.Content = "GO TO INTERFACE";
+                machine = new Machines();
+                machine.ParentWindow = this;
+                this.frame.Navigate(machine);
+            }
+            else
+            {
+                BTN.Tag = "MACHINES";
+                BTN.Content = "VIEW MACHINES";
+                hMI = new HMI();
+                hMI.ParentWindow = this;
+                this.frame.Navigate(hMI);
+            }
+           
+        }
     }
 }

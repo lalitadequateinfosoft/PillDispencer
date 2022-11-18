@@ -230,9 +230,8 @@ namespace PillDispencer.Model
 
     public enum Module_Device_Type
     {
-        MotorDrive,
-        ControlCard,
-        Weight
+        ModBus=0,
+        UART=3
     }
 
     public class SB1Handler
