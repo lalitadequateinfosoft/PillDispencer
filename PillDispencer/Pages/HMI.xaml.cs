@@ -658,44 +658,43 @@ namespace PillDispencer.Pages
 
                     if (hMIViewModel.HundChecked)
                     {
-                        expectedWeight = Convert.ToDecimal((100 / 100)) * hMIViewModel.Weight;
+                        expectedWeight = 1 * hMIViewModel.Weight;
                         setpointSatisfy = 0;
                     }
                     else if (hMIViewModel.FifChecked)
                     {
-                        expectedWeight = Convert.ToDecimal((50 / 100)) * hMIViewModel.Weight;
+                        expectedWeight = 0.5M * hMIViewModel.Weight;
                         setpointSatisfy = 0;
                     }
                     else if (hMIViewModel.TweChecked)
                     {
-                        expectedWeight = Convert.ToDecimal((20 / 100)) * hMIViewModel.Weight;
+                        expectedWeight = 0.2M * hMIViewModel.Weight;
                         setpointSatisfy = 0;
                     }
                     else if (hMIViewModel.TenChecked)
                     {
-                        expectedWeight = Convert.ToDecimal((10 / 100)) * hMIViewModel.Weight;
+                        expectedWeight = 0.1M * hMIViewModel.Weight;
                         setpointSatisfy = 0;
                     }
                     else if (hMIViewModel.CustomSetPointChecked1)
                     {
-                        expectedWeight = Convert.ToDecimal((hMIViewModel.CustomSetPoint1 / 100)) * hMIViewModel.Weight;
+                        expectedWeight = (Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.Weight;
                         setpointSatisfy = 0;
                     }
                     else if (hMIViewModel.FivChecked)
                     {
-                        expectedWeight = Convert.ToDecimal((5 / 100)) * hMIViewModel.Weight;
+                        expectedWeight = 0.05M * hMIViewModel.Weight;
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.CustomSetPointChecked2)
                     {
-                        expectedWeight = Convert.ToDecimal((hMIViewModel.CustomSetPoint2 / 100)) * hMIViewModel.Weight;
+                        expectedWeight = (Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.Weight;
                         setpointSatisfy = 1;
                     }
                     else
                     {
                         setpointSatisfy = 2;
                     }
-
 
                     switch (setpointSatisfy)
                     {
