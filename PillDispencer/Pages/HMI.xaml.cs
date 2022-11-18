@@ -66,14 +66,17 @@ namespace PillDispencer.Pages
             InitializeComponent();
             this.DataContext = hMIViewModel;
             _dispathcer = Dispatcher.CurrentDispatcher;
-            weighing = new CommunicationDevices {
-                IsConfigured=false
+            weighing = new CommunicationDevices
+            {
+                IsConfigured = false
             };
             control = new CommunicationDevices
             {
                 IsConfigured = false
             };
             deviceInfo = DeviceInformation.GetConnectedDevices();
+
+
         }
 
 
@@ -90,7 +93,7 @@ namespace PillDispencer.Pages
 
         private void ResetWeight_Click(object sender, RoutedEventArgs e)
         {
-            if(this.DataContext is HMIViewModel model)
+            if (this.DataContext is HMIViewModel model)
             {
                 model.Weight = 0;
                 MessageBox.Show("Weight has been reset");
@@ -132,14 +135,23 @@ namespace PillDispencer.Pages
         #region Run function
         private void Run_Click(object sender, RoutedEventArgs e)
         {
+            if (this.DataContext is HMIViewModel model)
+            {
+                if (model.Weight == 0 || model.TareWeight == 0 || (model.HundChecked == false || model.FifChecked == false || model.TweChecked == false || model.TenChecked == false || model.CustomSetPointChecked1 == false) || model.Zero == 0 || model.Span == 0)
+                {
+                    MessageBox.Show("Please set up weight, tare weight and other configurations.");
+                    return;
+                }
+            }
+
             if (!weighing.IsConfigured || !control.IsConfigured)
             {
                 MessageBox.Show("Please configure Devices.");
                 LoadSytem();
             }
-            if(this.DataContext is HMIViewModel model)
+            if (this.DataContext is HMIViewModel hmodel)
             {
-                model.IsNotRunning = false;
+                hmodel.IsNotRunning = false;
             }
             if (!weighing.IsConfigured || !control.IsConfigured)
             {
@@ -220,7 +232,8 @@ namespace PillDispencer.Pages
 
         private void ExecuteLogic()
         {
-
+            ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
+            Connect_control_card(control.PortName, control.BaudRate, control.DataBit, control.StopBit, control.Parity);
         }
         #endregion
 
@@ -299,7 +312,7 @@ namespace PillDispencer.Pages
                 control.SerialDevice.DiscardOutBuffer();
                 control.SerialDevice.Close();
             }
-            
+
         }
         #endregion
 
@@ -643,12 +656,12 @@ namespace PillDispencer.Pages
                     decimal expectedWeight = 0;
                     int setpointSatisfy = 0;
 
-                    if(hMIViewModel.HundChecked)
+                    if (hMIViewModel.HundChecked)
                     {
                         expectedWeight = (100 / 100) * hMIViewModel.Weight;
                         setpointSatisfy = 0;
                     }
-                    else if(hMIViewModel.FifChecked)
+                    else if (hMIViewModel.FifChecked)
                     {
                         expectedWeight = (50 / 100) * hMIViewModel.Weight;
                         setpointSatisfy = 0;
@@ -684,12 +697,12 @@ namespace PillDispencer.Pages
                     }
 
 
-                    switch(setpointSatisfy)
+                    switch (setpointSatisfy)
                     {
                         case 0:
-                            if(weight==expectedWeight)
+                            if (weight == expectedWeight)
                             {
-                                
+
                                 WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
                                 WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
                                 WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
@@ -714,7 +727,7 @@ namespace PillDispencer.Pages
                         case 1:
                             if (weight == expectedWeight)
                             {
-                                
+
                                 WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
                                 WriteControCardState(control.Yellow.RegisterNo, 1, control.SlaveAddress);
                                 WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
@@ -867,7 +880,7 @@ namespace PillDispencer.Pages
 
         }
 
-       
+
         #endregion
 
 

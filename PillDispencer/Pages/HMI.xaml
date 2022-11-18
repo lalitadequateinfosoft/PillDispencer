@@ -107,7 +107,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
-                                    <Label Content="WEIGHT" FontSize="12" FontWeight="Medium" HorizontalAlignment="Left"/>
+                                    <Label Content="TARE" FontSize="12" FontWeight="Medium" HorizontalAlignment="Left"/>
                                     <Label Content="100%" FontSize="12" FontWeight="Medium" HorizontalAlignment="Right"/>
                                 </Grid>
                                 <Border Grid.Row="1"

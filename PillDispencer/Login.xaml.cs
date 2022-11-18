@@ -42,12 +42,16 @@ namespace PillDispencer
         {
             if (this.DataContext is LoginViewModel model)
             {
-                if (!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.Password))
+                if (!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.Password) && model.Username== "edward.2022" && model.Password== "Adk@2017")
                 {
                     MainWindow main = new MainWindow();
                     main.Show();
                     this.Close();
 
+                }
+                else
+                {
+                    MessageBox.Show("Login failed!,invalid/Empty username and password provided");
                 }
             }
         }

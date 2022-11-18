@@ -16,8 +16,7 @@ namespace PillDispencer.ViewModel
 
         public LoginViewModel()
         {
-            Username = "edward.2022";
-            Password = "Test@123456";
+
         }
         private string _username;
 
