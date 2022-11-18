@@ -72,14 +72,15 @@
                     </Button.Resources>
                 </Button>
             </StackPanel>
-            
+
         </Grid>
 
-        <Grid Grid.Row="1" Margin="15,10">
-            <ItemsControl ItemsSource="{Binding Path=Machines}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        
+        <Grid Grid.Row="1" Margin="10,10">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Path=Machines}" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+
                             <Border 
                             BorderBrush="White"
                             BorderThickness="1"
@@ -91,45 +92,57 @@
                             Background="White"
                             CornerRadius="8"
                                 >
-                              <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <Image Source="/Icons/setting.png" Stretch="UniformToFill" HorizontalAlignment="Right" Width="20" Height="20"/>
-                                </Grid>
-                                <Grid Grid.Row="1">
-                                    <Image Source="/Icons/pill.png" Stretch="Uniform" />
-                                </Grid>
-                                <Grid Grid.Row="2">
+                                <Grid>
                                     <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
-                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid Grid.Row="0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Label Content="STATUS"
+                                        <Image Source="/Icons/setting.png"
+                                               Stretch="UniformToFill"
+                                               HorizontalAlignment="Right"
+                                               Width="20"
+                                               Height="20"
+                                               MouseDown="Image_MouseDown">
+                                            <Image.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Tag="{Binding MachineNo}" Header="Remove" Click="MenuItem_Click"/>
+                                                </ContextMenu>
+                                            </Image.ContextMenu>
+                                        </Image>
+                                        
+                                    </Grid>
+                                    <Grid Grid.Row="1">
+                                        <Image Source="/Icons/pill.png" Stretch="Uniform" />
+                                    </Grid>
+                                    <Grid Grid.Row="2">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Content="STATUS"
                                                Grid.Column="0"
                                                HorizontalAlignment="Left"
                                                VerticalAlignment="Center"
                                                FontSize="10"
                                               FontWeight="Bold"
                                                Foreground="#6d6d6d"/>
-                                        <Label Content="60 % COMPLETED"
+                                            <Label Content="60 % COMPLETED"
                                                Grid.Column="1"
                                                HorizontalAlignment="Right"
                                                VerticalAlignment="Center"
                                                FontSize="10"
                                               FontWeight="Bold"
                                                Foreground="#6d6d6d"/>
-                                    </Grid>
-                                    <ProgressBar
+                                        </Grid>
+                                        <ProgressBar
                                         Minimum="0"
                                         Maximum="100"
                                         Grid.Row="1"
@@ -138,23 +151,23 @@
                                         Height="10"
                                         Foreground="#1ac41b"
                                         >
-                                        <ProgressBar.Resources>
-                                            <Style TargetType="{x:Type Border}">
-                                                <Setter Property="CornerRadius" Value="6,6,6,6"/>
-                                            </Style>
-                                        </ProgressBar.Resources>
-                                    </ProgressBar>
-                                </Grid>
-                                <Border Grid.Row="3" Margin="0" Padding="0,5,0,0">
-                                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid Grid.Column="0">
-                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                                                <StackPanel>
-                                                    <Label 
+                                            <ProgressBar.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="6,6,6,6"/>
+                                                </Style>
+                                            </ProgressBar.Resources>
+                                        </ProgressBar>
+                                    </Grid>
+                                    <Border Grid.Row="3" Margin="0" Padding="0,5,0,0">
+                                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Column="0">
+                                                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                                    <StackPanel>
+                                                        <Label 
                                                         Content="MACHINE NO."
                                                         Grid.Column="1"
                                                         HorizontalAlignment="Left"
@@ -162,55 +175,63 @@
                                                         FontSize="10"
                                                         FontWeight="Bold"
                                                         Foreground="#6d6d6d"/>
-                                                </StackPanel>
-                                                <StackPanel>
-                                                    <Label 
-                                                        Content="01"
+                                                    </StackPanel>
+                                                    <StackPanel>
+                                                        <Label 
+                                                        Content="{Binding MachineNo}"
                                                         Grid.Column="1"
                                                         HorizontalAlignment="Left"
                                                         VerticalAlignment="Center"
                                                         FontSize="18"
                                                         FontWeight="Bold"
                                                         Foreground="#6d6d6d"/>
+                                                    </StackPanel>
                                                 </StackPanel>
-                                            </StackPanel>
-                                        </Grid>
-                                        <Grid Grid.Column="1">
-                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Right">
-                                                <StackPanel>
-                                                    <ToggleButton 
+                                            </Grid>
+                                            <Grid Grid.Column="1">
+                                                <StackPanel Orientation="Vertical" HorizontalAlignment="Right">
+                                                    <StackPanel>
+                                                        <CheckBox 
                                                         IsChecked="{Binding Path=IsActive,Mode=TwoWay}"
+                                                         Checked="CheckBox_Checked"
+                                                            Unchecked="CheckBox_Unchecked"
                                                         Style="{DynamicResource ToggleButtonStyle}"
                                                         FontSize="14"
                                                         Background="#1ac41b"
                                                         Width="35"
-                                                        Height="30"/>
-                                                </StackPanel>
-                                                <StackPanel>
-                                                    <Label 
-                                                        Content="ACTIVE"
+                                                        Height="30"
+                                                            Tag="{Binding MachineNo}"/>
+                                                    </StackPanel>
+                                                    <StackPanel>
+                                                        <Label 
+                                                        Content="{Binding IsActiveText}"
                                                         Grid.Column="1"
                                                         HorizontalAlignment="Right"
                                                         VerticalAlignment="Center"
                                                         FontSize="10"
                                                         FontWeight="Bold"
-                                                        Foreground="#6d6d6d"/>
+                                                        Foreground="#6d6d6d"
+                                                            />
+
+
+
+                                                    </StackPanel>
                                                 </StackPanel>
-                                            </StackPanel>
+                                            </Grid>
                                         </Grid>
-                                    </Grid>
-                                </Border>
-                            </Grid>
+                                    </Border>
+                                </Grid>
                             </Border>
-                        
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel></WrapPanel>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel></WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Page>

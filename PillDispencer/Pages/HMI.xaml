@@ -54,24 +54,34 @@
                                         BorderThickness="1"
                                         Background="#d9d9d9"
                                         Margin="0,5,0,5">
-                                    <Label Content="200 LBS"
+                                    <TextBox Text="{Binding Weight,Mode=TwoWay, StringFormat={}{0} LBS}"
+                                             IsEnabled="{Binding IsNotRunning}"
                                            FontSize="28"
                                            FontWeight="Bold"
                                            Foreground="#4a4a4a"
+                                             Background="#d9d9d9"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
                                            HorizontalContentAlignment="Center"
                                            VerticalContentAlignment="Center"/>
                                 </Border>
                                 <Grid Grid.Row="2">
-                                    <Button Content="SAVE"
+                                    <Button
+                                            x:Name="SaveWeight"
+                                        Click="SaveWeight_Click"
+                                            Content="SAVE"
+                                            IsEnabled="{Binding IsNotRunning}"
                                             Background="#0082ca"
                                             BorderBrush="#0082ca"
                                             BorderThickness="1"
                                             Width="65" Height="30"
                                             FontSize="14" Foreground="White"
                                             HorizontalAlignment="Left"/>
-                                    <Button Content="RESET"
+                                    <Button 
+                                            x:Name="ResetWeight"
+                                        Click="ResetWeight_Click"
+                                            Content="RESET"
+                                            IsEnabled="{Binding IsNotRunning}"
                                             Background="#ff2b2a"
                                             BorderBrush="#ff2b2a"
                                             BorderThickness="1"
@@ -105,24 +115,31 @@
                                         BorderThickness="1"
                                         Background="#d9d9d9"
                                         Margin="0,5,0,5">
-                                    <Label Content="200 LBS"
+                                    <TextBox Text="{Binding TareWeight,Mode=TwoWay, StringFormat={}{0} LBS}"
                                            FontSize="28"
                                            FontWeight="Bold"
                                            Foreground="#4a4a4a"
+                                             Background="#d9d9d9"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Stretch"
                                            HorizontalContentAlignment="Center"
                                            VerticalContentAlignment="Center"/>
                                 </Border>
                                 <Grid Grid.Row="2">
-                                    <Button Content="SAVE"
+                                    <Button IsEnabled="{Binding IsNotRunning}"
+                                            Click="SaveTareWeight_Click"
+                                            x:Name="SaveTareWeight"
+                                            Content="SAVE"
                                             Background="#0082ca"
                                             BorderBrush="#0082ca"
                                             BorderThickness="1"
                                             Width="65" Height="30"
                                             FontSize="14" Foreground="White"
                                             HorizontalAlignment="Left"/>
-                                    <Button Content="RESET"
+                                    <Button IsEnabled="{Binding IsNotRunning}"
+                                            Click="ResetTareWeight_Click"
+                                            x:Name="ResetTareWeight"
+                                            Content="RESET"
                                             Background="#ff2b2a"
                                             BorderBrush="#ff2b2a"
                                             BorderThickness="1"
@@ -144,13 +161,18 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <Border CornerRadius="8" Grid.Row="0" Background="White" Padding="12,15,12,18">
+                        <Border 
+                            CornerRadius="8"
+                            Grid.Row="0"
+                            Background="White"
+                            Padding="12,15,12,18">
                             <StackPanel Orientation="Vertical">
                                 <StackPanel>
                                     <Label Content="Set Point 01" Foreground="#4a4a4a" FontWeight="Bold"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
-                                    <RadioButton GroupName="WeightPoint"
+                                    <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 GroupName="WeightPoint"
                                                  x:Name="HundredCheck"
                                                  Content="100%"
                                                  IsChecked="False"
@@ -160,7 +182,8 @@
                                                  VerticalContentAlignment="Center"
                                                  Foreground="#b8b8b8"
                                                  FontSize="16"/>
-                                    <RadioButton GroupName="WeightPoint"
+                                    <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 GroupName="WeightPoint"
                                                  x:Name="fiftyCheck"
                                                  Content="50%"
                                                  IsChecked="True"
@@ -171,7 +194,8 @@
                                                  Margin="10,0,10,0"
                                                  FontSize="16"
                                                  Foreground="#b8b8b8"/>
-                                    <RadioButton GroupName="WeightPoint"
+                                    <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 GroupName="WeightPoint"
                                                  x:Name="TwentyCheck"
                                                  Content="20%"
                                                  IsChecked="False"
@@ -182,7 +206,8 @@
                                                  Margin="10,0,10,0"
                                                  FontSize="16"
                                                  Foreground="#b8b8b8"/>
-                                    <RadioButton GroupName="WeightPoint"
+                                    <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 GroupName="WeightPoint"
                                                  x:Name="TenCheck"
                                                  Content="10%"
                                                  IsChecked="False"
@@ -193,7 +218,8 @@
                                                  Margin="10,0,10,0"
                                                  FontSize="16"
                                                  Foreground="#b8b8b8"/>
-                                    <RadioButton GroupName="WeightPoint"
+                                    <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 GroupName="WeightPoint"
                                                  x:Name="CustomCheck"
                                                  Content="Custom Value"
                                                  IsChecked="False"
@@ -206,6 +232,8 @@
                                                  Foreground="#b8b8b8"/>
                                     <TextBox 
                                         x:Name="WeightCheckCustomValue"
+                                        Text="{Binding _CustomSetPoint1,Mode=TwoWay}"
+                                        IsEnabled="{Binding IsNotRunning}"
                                         BorderBrush="#4a4a4a"
                                         BorderThickness="1"
                                         Background="#dcdcdc"
@@ -237,7 +265,9 @@
                                             <Label Content="Set Point 01" Foreground="#4a4a4a" FontWeight="Bold"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
-                                            <RadioButton GroupName="ControlPoint"
+                                            <RadioButton
+                                                GroupName="ControlPoint"
+                                                 IsEnabled="{Binding IsNotRunning}"
                                                  x:Name="fiveCheck"
                                                  Content="5%"
                                                  IsChecked="False"
@@ -248,7 +278,9 @@
                                                  FontSize="16"
                                                  Foreground="#b8b8b8"/>
 
-                                            <RadioButton GroupName="WeightPoint"
+                                            <RadioButton
+                                                IsEnabled="{Binding IsNotRunning}"
+                                                GroupName="WeightPoint"
                                                  x:Name="CustomControlCheck"
                                                  Content="Custom Value"
                                                  IsChecked="False"
@@ -261,6 +293,8 @@
                                                  Foreground="#b8b8b8"/>
                                             <TextBox 
                                         x:Name="ControlCheckCustomValue"
+                                        Text="{Binding _CustomSetPoint2,Mode=TwoWay}"
+                                        IsEnabled="{Binding IsNotRunning}"
                                         BorderBrush="#4a4a4a"
                                         BorderThickness="1"
                                         Background="#dcdcdc"
@@ -380,6 +414,7 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
+
                                         <Label Content="CALIBRATION"
                                                Grid.Row="0"
                                                HorizontalContentAlignment="Center"
@@ -387,14 +422,197 @@
                                                FontSize="14"
                                                FontWeight="Medium"/>
                                         <Grid Grid.Row="1"
-                                              Background="White">
-                                            <Label 
+                                              Background="White"
+                                              >
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Label Content="ZERO"
+                                                   Foreground="White"
+                                                   Background="#656364"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Grid.Row="0"
+                                                   Grid.Column="0"
+                                                   Margin="10,10,10,5"
+                                                   HorizontalContentAlignment="Center"
+                                                   VerticalContentAlignment="Center"
+                                                   Height="40"/>
+                                            <TextBox 
+                                                    x:Name="Zero"
+                                                    Text="{Binding Zero, Mode=TwoWay}"
+                                                    IsEnabled="{Binding IsNotRunning}"
+                                                    BorderBrush="#656364"
+                                                    BorderThickness="1"
+                                                    Foreground="#656364"
+                                                   Background="#dcdcdc"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Grid.Row="0"
+                                                   Grid.Column="1"
+                                                   Margin="10,10,10,5"
+                                                   HorizontalContentAlignment="Center"
+                                                   VerticalContentAlignment="Center"
+                                                Height="40"
+                                                />
+
+                                            <Label Content="SPAN"
+                                                   Foreground="White"
+                                                   Background="#656364"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Grid.Row="1"
+                                                   Grid.Column="0"
+                                                   Margin="10,10,10,5"
+                                                   HorizontalContentAlignment="Center"
+                                                   VerticalContentAlignment="Center"
+                                                   Height="40"/>
+                                            <TextBox 
+                                                    x:Name="Span"
+                                                    Text="{Binding Span, Mode=TwoWay}"
+                                                    IsEnabled="{Binding IsNotRunning}"
+                                                    BorderBrush="#656364"
+                                                    BorderThickness="1"
+                                                    Foreground="#656364"
+                                                   Background="#dcdcdc"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Grid.Row="1"
+                                                   Grid.Column="1"
+                                                   Margin="10,10,10,5"
                                                 HorizontalContentAlignment="Center"
-                                                Content="CALIBRATION AREA"/>
+                                                   VerticalContentAlignment="Center"
+                                                Height="40"
+                                                />
+                                            <Button 
+                                                x:Name="SaveCalibration"
+                                                Click="SaveCalibration_Click"
+                                                Content="SAVE"
+                                                IsEnabled="{Binding IsNotRunning}"
+                                                BorderBrush="#0082ca"
+                                                BorderThickness="1"
+                                                Foreground="White"
+                                                Background="#0082ca"
+                                                FontSize="16"
+                                                FontWeight="Bold"
+                                                Grid.Row="2"
+                                                Grid.Column="0"
+                                                Margin="10,10,10,5"
+                                                Height="40" >
+                                                <Button.Resources>
+                                                    <Style TargetType="{x:Type Border}">
+                                                        <Setter Property="CornerRadius" Value="2"/>
+                                                    </Style>
+                                                </Button.Resources>
+                                            </Button>
+                                            
+                                            
+
+                                            <Button 
+                                                x:Name="ResetCalibration"
+                                                Click="ResetCalibration_Click"
+                                                IsEnabled="{Binding IsNotRunning}"
+                                                Content="RESET"
+                                                BorderBrush="#a8a8a8"
+                                                BorderThickness="1"
+                                                Foreground="White"
+                                                Background="#a8a8a8"
+                                                FontSize="16"
+                                                FontWeight="Bold"
+                                                Grid.Row="2"
+                                                Grid.Column="1"
+                                                Margin="10,10,10,5"
+                                                Height="40" >
+                                                <Button.Resources>
+                                                    <Style TargetType="{x:Type Border}">
+                                                        <Setter Property="CornerRadius" Value="2"/>
+                                                    </Style>
+                                                </Button.Resources>
+                                            </Button>
+
+
                                         </Grid>
                                     </Grid>
                                 </Border>
                             </Grid>
+                        </Grid>
+                        <Grid Grid.Row="2">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                                <StackPanel Margin="5">
+                                    <Button
+                                        Click="Run_Click"
+                                        x:Name="Run"
+                                        Content="RUN"
+                                        HorizontalAlignment="Right"
+                                        Width="120"
+                                        Height="50"
+                                        BorderBrush="#0082ca"
+                                        BorderThickness="1"
+                                        Foreground="White"
+                                        Background="#0082ca"
+                                        FontSize="16"
+                                        FontWeight="Bold"
+                                        Visibility="{Binding Path=IsRunning}"
+                                        >
+                                        <Button.Resources>
+                                            <Style TargetType="{x:Type Border}">
+                                                <Setter Property="CornerRadius" Value="2"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+
+                                    <Button
+                                        x:Name="Stop"
+                                        Content="STOP"
+                                        Click="Stop_Click"
+                                        Visibility="{Binding Path=IsStop}"
+                                        HorizontalAlignment="Right"
+                                        Width="120"
+                                        Height="50"
+                                        BorderBrush="#ff2b2a"
+                                        BorderThickness="1"
+                                        Foreground="White"
+                                        Background="#ff2b2a"
+                                        FontSize="16"
+                                        FontWeight="Bold"
+                                        >
+                                        <Button.Resources>
+                                            <Style TargetType="{x:Type Border}">
+                                                <Setter Property="CornerRadius" Value="2"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Margin="5">
+                                    <Button 
+                                        Click="Next_Click"
+                                x:Name="Next"
+                                Content="NEXT BATCH"
+                                HorizontalAlignment="Right"
+                                Width="150"
+                                Height="50"
+                                BorderBrush="#a8a8a8"
+                                BorderThickness="1"
+                                Foreground="White"
+                                Background="#a8a8a8"
+                                FontSize="16"
+                                FontWeight="Bold"
+                                >
+                                        <Button.Resources>
+                                            <Style TargetType="{x:Type Border}">
+                                                <Setter Property="CornerRadius" Value="2"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
                         </Grid>
                     </Grid>
                 </Border>

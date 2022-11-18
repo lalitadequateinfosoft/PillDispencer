@@ -1,5 +1,7 @@
-﻿using System;
+﻿using PillDispencer.Pages;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,5 +19,9 @@ namespace PillDispencer.Model
         public int SlaveAddress { get; set; }
         public bool IsActive { get; set; }
         public int MachineNo { get; set; }
+        public string IsActiveText
+        {
+            get => IsActive==true?"ACTIVE":"IN ACTIVE";
+        }
     }
 }

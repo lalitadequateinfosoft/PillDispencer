@@ -51,9 +51,13 @@
     </Reference>
     <Reference Include="netstandard" />
     <Reference Include="System" />
+    <Reference Include="System.CodeDom, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.CodeDom.7.0.0\lib\net462\System.CodeDom.dll</HintPath>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Management" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -85,6 +89,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="PopUp\ConfigurationDailog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PopUp\DeviceInformationPopUp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -96,11 +108,27 @@
     <Compile Include="Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Model\Common.cs" />
+    <Compile Include="Model\CommunicationDevices.cs" />
+    <Compile Include="Model\COM_Code.cs" />
+    <Compile Include="Model\ConvertMisc.cs" />
+    <Compile Include="Model\Crc.cs" />
+    <Compile Include="Model\DeviceInfo.cs" />
     <Compile Include="Model\MachinesModel.cs" />
+    <Compile Include="Model\MODBUSComnn.cs" />
+    <Compile Include="Model\RegisterConfiguration.cs" />
     <Compile Include="Pages\Machines.xaml.cs">
       <DependentUpon>Machines.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\MyListItems.cs" />
+    <Compile Include="PopUp\ConfigurationDailog.xaml.cs">
+      <DependentUpon>ConfigurationDailog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PopUp\DeviceInformationPopUp.xaml.cs">
+      <DependentUpon>DeviceInformationPopUp.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\DeviceInformation.cs" />
+    <Compile Include="ViewModel\HMIViewModel.cs" />
     <Compile Include="ViewModel\LoginViewModel.cs" />
     <Compile Include="ViewModel\MachineViewModel.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
@@ -156,6 +184,7 @@
   <ItemGroup>
     <Resource Include="View\icon.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Runtime.WindowsRuntime.4.6.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.6.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

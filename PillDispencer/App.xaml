@@ -5,11 +5,11 @@
              StartupUri="Login.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <Style x:Key="ToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+            <Style x:Key="ToggleButtonStyle" TargetType="{x:Type CheckBox}">
                 <Setter Property="IsChecked" Value="True"/>
                 <Setter Property="Template">
                     <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <ControlTemplate TargetType="{x:Type CheckBox}">
                             <Viewbox>
                                 <Border x:Name="Border" CornerRadius="10"
                             Background="#FFFFFFFF"
@@ -28,24 +28,27 @@
                                 </Border>
                             </Viewbox>
                             <ControlTemplate.Triggers>
-                                <EventTrigger RoutedEvent="Checked">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <ColorAnimation Storyboard.TargetName="Border"
+                                <Trigger Property="CheckBox.IsChecked" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetName="Border"
                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                     To="#FF4CD661"
                                                     Duration="0:0:0.1" />
-                                            <ThicknessAnimation Storyboard.TargetName="Ellipse"
+                                                <ThicknessAnimation Storyboard.TargetName="Ellipse"
                                                         Storyboard.TargetProperty="Margin"
                                                         To="20 1 2 1"
                                                         Duration="0:0:0.1" />
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                                <EventTrigger RoutedEvent="Unchecked">
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                </Trigger>
+                                <Trigger Property="CheckBox.IsChecked" Value="False">
+                                    <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <ColorAnimation Storyboard.TargetName="Border"
+                                                <ColorAnimation Storyboard.TargetName="Border"
                                                     Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                     To="White"
                                                     Duration="0:0:0.1" />
@@ -55,8 +58,40 @@
                                                         Duration="0:0:0.1" />
                                         </Storyboard>
                                     </BeginStoryboard>
-                                </EventTrigger>
-                                
+                                    </Trigger.EnterActions>
+                                </Trigger>
+                                <DataTrigger Value="True" Binding="{Binding IsActive}">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetName="Border"
+                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                    To="#FF4CD661"
+                                                    Duration="0:0:0.1" />
+                                                <ThicknessAnimation Storyboard.TargetName="Ellipse"
+                                                        Storyboard.TargetProperty="Margin"
+                                                        To="20 1 2 1"
+                                                        Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                                <DataTrigger Value="False" Binding="{Binding IsActive}">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetName="Border"
+                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                    To="White"
+                                                    Duration="0:0:0.1" />
+                                                <ThicknessAnimation Storyboard.TargetName="Ellipse"
+                                                        Storyboard.TargetProperty="Margin"
+                                                        To="2 1 2 1"
+                                                        Duration="0:0:0.1" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>

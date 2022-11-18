@@ -53,7 +53,7 @@ namespace PillDispencer.ViewModel
 
         public void RemoveMachines(int machine)
         {
-            foreach (var item in MachinesList)
+            foreach (var item in MachinesList.ToList())
             {
                 if (item.MachineNo == machine)
                 {
@@ -66,7 +66,7 @@ namespace PillDispencer.ViewModel
         public void LoadMachines()
         {
             Machines = new ObservableCollection<MachinesModel>();
-            foreach (var item in MachinesList)
+            foreach (var item in MachinesList.ToList().OrderBy(x=>x.MachineNo))
             {
                 Machines.Add(item);
             }

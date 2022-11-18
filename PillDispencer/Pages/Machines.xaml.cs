@@ -61,5 +61,46 @@ namespace PillDispencer.Pages
             hMI.ParentWindow = ParentWindow;
             ParentWindow.frame.Navigate(hMI);
         }
+
+        private void Image_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                Image image = sender as Image;
+                ContextMenu contextMenu = image.ContextMenu;
+                contextMenu.PlacementTarget = image;
+                contextMenu.IsOpen = true;
+                e.Handled = true;
+            }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            if(this.DataContext is MachineViewModel model)
+            {
+                model.RemoveMachines(Convert.ToInt32(item.Tag));
+            }
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkbox=sender as CheckBox;
+            if(this.DataContext is MachineViewModel model)
+            {
+                model.MachinesList.Where(x => x.MachineNo == Convert.ToInt32(checkbox.Tag)).ToList().ForEach(x => x.IsActive = true);
+                model.LoadMachines();
+            }
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var checkbox = sender as CheckBox;
+            if (this.DataContext is MachineViewModel model)
+            {
+                model.MachinesList.Where(x => x.MachineNo == Convert.ToInt32(checkbox.Tag)).ToList().ForEach(x => x.IsActive = false);
+                model.LoadMachines();
+            }
+        }
     }
 }

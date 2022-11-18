@@ -13,20 +13,6 @@ namespace PillDispencer.ViewModel
 {
     public class LoginViewModel:INotifyPropertyChanged
     {
-        private ICommand loginCommand { get; set; }
-        public ICommand LoginCommand
-        {
-            get
-            {
-                return loginCommand;
-            }
-            set
-            {
-                loginCommand = value;
-            }
-        }
-
-        private bool canExecute = true;
 
         public LoginViewModel()
         {
