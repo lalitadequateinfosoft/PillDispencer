@@ -237,6 +237,7 @@ namespace PillDispencer.Pages
 
         private void ExecuteLogic()
         {
+            hMIViewModel.IsNotRunning = false;
             ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
             Connect_control_card(control.PortName, control.BaudRate, control.DataBit, control.StopBit, control.Parity);
         }
@@ -659,7 +660,7 @@ namespace PillDispencer.Pages
                     decimal weight = balance - hMIViewModel.Zero;
                     weight = weight * hMIViewModel.Span;
                     weight = weight - hMIViewModel.TareWeight;
-                    if (hMIViewModel.ActualWeight <= 0)
+                    if (hMIViewModel.ActualWeight <= 0 && hMIViewModel.IsNotRunning==true)
                     {
                         hMIViewModel.ActualWeight = weight;
                         hMIViewModel.Weight = weight;
@@ -791,6 +792,7 @@ namespace PillDispencer.Pages
             hMIViewModel.ActualWeight = 0;
             hMIViewModel.Weight = 0;
             hMIViewModel.WeightPercentage = 0;
+            hMIViewModel.IsNotRunning = true;
             MessageBox.Show("Batch has been completed.");
         }
         void StartBatch()
