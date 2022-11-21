@@ -228,7 +228,7 @@ namespace PillDispencer.Pages
                             RType = 1,
                             RegisterNo = Convert.ToInt32(deviceInformation.YellowLight.Text.ToString())
                         };
-                        control.Yellow = new RegisterConfiguration
+                        control.Red = new RegisterConfiguration
                         {
                             RType = 1,
                             RegisterNo = Convert.ToInt32(deviceInformation.RedLight.Text.ToString())
@@ -666,9 +666,9 @@ namespace PillDispencer.Pages
                     weight = weight - hMIViewModel.TareWeight;
                     if (hMIViewModel.ActualWeight <= 0 && hMIViewModel.IsNotRunning==true)
                     {
-                        hMIViewModel.ActualWeight = weight;
-                        hMIViewModel.Weight = weight;
-                        hMIViewModel.WeightPercentage = (hMIViewModel.Weight/ hMIViewModel.ActualWeight)*100;
+                        hMIViewModel.ActualWeight = Math.Round(weight,2);
+                        hMIViewModel.Weight = Math.Round(weight,2);
+                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight/ hMIViewModel.ActualWeight)*100,2);
                         WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
                         WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
                         WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
@@ -691,8 +691,8 @@ namespace PillDispencer.Pages
                         return;
                     }
 
-                    hMIViewModel.Weight = weight;
-                    hMIViewModel.WeightPercentage = (hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100;
+                    hMIViewModel.Weight = Math.Round(weight, 2); 
+                    hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
                     decimal expectedWeight = 0;
                     int setpointSatisfy = 0;
 
@@ -703,32 +703,32 @@ namespace PillDispencer.Pages
                     }
                     else if (hMIViewModel.FifChecked)
                     {
-                        expectedWeight = 0.5M * hMIViewModel.Weight;
+                        expectedWeight = Math.Round(0.5M * hMIViewModel.Weight,2);
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.TweChecked)
                     {
-                        expectedWeight = 0.2M * hMIViewModel.Weight;
+                        expectedWeight = Math.Round(0.2M * hMIViewModel.Weight,2);
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.TenChecked)
                     {
-                        expectedWeight = 0.1M * hMIViewModel.Weight;
+                        expectedWeight = Math.Round(0.1M * hMIViewModel.Weight,2);
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.CustomSetPointChecked1)
                     {
-                        expectedWeight = (Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.Weight;
+                        expectedWeight = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.Weight,2);
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.FivChecked)
                     {
-                        expectedWeight = 0.05M * hMIViewModel.Weight;
+                        expectedWeight = Math.Round(0.05M * hMIViewModel.Weight,2);
                         setpointSatisfy = 2;
                     }
                     else if (hMIViewModel.CustomSetPointChecked2)
                     {
-                        expectedWeight = (Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.Weight;
+                        expectedWeight = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.Weight,2);
                         setpointSatisfy = 2;
                     }
 

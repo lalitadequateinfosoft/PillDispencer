@@ -364,7 +364,7 @@
                                                    Content="OFF"/>
                                             <RadioButton x:Name="yellow"
                                                          Grid.Row="1"
-                                                         Content="GREEN"
+                                                         Content="YELLOW"
                                                          BorderBrush="#e6e6e6"
                                                          Background="#cecece"
                                                          BorderThickness="20"
@@ -396,7 +396,7 @@
                                                    Content="OFF"/>
                                             <RadioButton x:Name="red"
                                                          Grid.Row="1"
-                                                         Content="GREEN"
+                                                         Content="RED"
                                                          BorderBrush="#e6e6e6"
                                                          Background="#cecece"
                                                          BorderThickness="20"

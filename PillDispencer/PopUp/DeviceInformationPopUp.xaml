@@ -71,11 +71,13 @@
                             Grid.Column="1">
                             <TextBox x:Name="AddressBox"
                                      Margin="5"
+                                      Width="150"
+                                     Height="30"
                                  HorizontalContentAlignment="Center"
                                  VerticalContentAlignment="Center"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
-                                     BorderBrush="#eee"
+                                     BorderBrush="Black"
                                      BorderThickness="1"
                                  />
                         </StackPanel>
@@ -90,11 +92,13 @@
                             Grid.Column="1">
                             <TextBox x:Name="GreenLight"
                                      Margin="5"
+                                      Width="150"
+                                     Height="30"
                                  HorizontalContentAlignment="Center"
                                  VerticalContentAlignment="Center"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
-                                     BorderBrush="#eee"
+                                     BorderBrush="Black"
                                      BorderThickness="1"
                                  />
                         </StackPanel>
@@ -108,11 +112,13 @@
                             Grid.Column="1">
                             <TextBox x:Name="YellowLight"
                                      Margin="5"
+                                      Width="150"
+                                     Height="30"
                                  HorizontalContentAlignment="Center"
                                  VerticalContentAlignment="Center"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
-                                     BorderBrush="#eee"
+                                     BorderBrush="Black"
                                      BorderThickness="1"
                                  />
                         </StackPanel>
@@ -122,15 +128,17 @@
                                HorizontalContentAlignment="Center"
                                VerticalContentAlignment="Center"/>
                         <StackPanel 
-                            Grid.Row="2"
+                            Grid.Row="3"
                             Grid.Column="1">
                             <TextBox x:Name="RedLight"
                                      Margin="5"
+                                      Width="150"
+                                     Height="30"
                                  HorizontalContentAlignment="Center"
                                  VerticalContentAlignment="Center"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
-                                     BorderBrush="#eee"
+                                     BorderBrush="Black"
                                      BorderThickness="1"
                                  />
                         </StackPanel>
