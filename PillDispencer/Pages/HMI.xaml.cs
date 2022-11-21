@@ -75,15 +75,14 @@ namespace PillDispencer.Pages
                 IsConfigured = false
             };
             deviceInfo = DeviceInformation.GetConnectedDevices();
-
-
         }
 
 
         #region page function
         private void Next_Click(object sender, RoutedEventArgs e)
         {
-
+            MessageBox.Show("Starting Next Weight");
+            StartBatch();
         }
 
         private void SaveWeight_Click(object sender, RoutedEventArgs e)
@@ -96,6 +95,8 @@ namespace PillDispencer.Pages
             if (this.DataContext is HMIViewModel model)
             {
                 model.Weight = 0;
+                model.ActualWeight = 0;
+                model.WeightPercentage = 0;
                 MessageBox.Show("Weight has been reset");
             }
         }
@@ -158,6 +159,7 @@ namespace PillDispencer.Pages
                 MessageBox.Show("You have not configured devices.");
                 return;
             }
+            MessageBox.Show("Starting process..");
             ExecuteLogic();
         }
 
@@ -206,26 +208,29 @@ namespace PillDispencer.Pages
                     control.DataBit = dailog.Databit;
                     control.StopBit = dailog.Stopbit;
                     control.Parity = dailog.ParityValue;
-                    control.SlaveAddress = 4;
 
-
-                    control.Green = new RegisterConfiguration
+                    DeviceInformationPopUp deviceInformation=new DeviceInformationPopUp();
+                    deviceInformation.ShowDialog();
+                    if(!deviceInformation.Canceled)
                     {
-                        RType = 1,
-                        RegisterNo = 1
-                    };
-                    control.Yellow = new RegisterConfiguration
-                    {
-                        RType = 1,
-                        RegisterNo = 2
-                    };
-                    control.Yellow = new RegisterConfiguration
-                    {
-                        RType = 1,
-                        RegisterNo = 3
-                    };
-
-                    control.IsConfigured = true;
+                        control.SlaveAddress = Convert.ToInt32(deviceInformation.AddressBox.Text.ToString());
+                        control.Green = new RegisterConfiguration
+                        {
+                            RType = 1,
+                            RegisterNo = Convert.ToInt32(deviceInformation.GreenLight.Text.ToString())
+                        };
+                        control.Yellow = new RegisterConfiguration
+                        {
+                            RType = 1,
+                            RegisterNo = Convert.ToInt32(deviceInformation.YellowLight.Text.ToString())
+                        };
+                        control.Yellow = new RegisterConfiguration
+                        {
+                            RType = 1,
+                            RegisterNo = Convert.ToInt32(deviceInformation.RedLight.Text.ToString())
+                        };
+                        control.IsConfigured = true;
+                    }
                 }
             }
         }
@@ -653,76 +658,77 @@ namespace PillDispencer.Pages
 
                     decimal weight = balance - hMIViewModel.Zero;
                     weight = weight * hMIViewModel.Span;
+                    weight = weight - hMIViewModel.TareWeight;
+                    if (hMIViewModel.ActualWeight <= 0)
+                    {
+                        hMIViewModel.ActualWeight = weight;
+                        hMIViewModel.Weight = weight;
+                        hMIViewModel.WeightPercentage = (hMIViewModel.Weight/ hMIViewModel.ActualWeight)*100;
+                        WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
+                        WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
+                        WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
+
+                        _dispathcer.Invoke(new Action(() =>
+                        {
+                            red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                            red.Background = (Brush)bc.ConvertFromString("#cecece");
+                            red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+
+                            Green.Foreground = Brushes.Green;
+                            Green.Background = Brushes.LightGreen;
+                            Green.BorderBrush = Brushes.Green;
+
+                            yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                            yellow.Background = (Brush)bc.ConvertFromString("#cecece");
+                            yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+
+                        }));
+                        return;
+                    }
+
+                    hMIViewModel.Weight = weight;
+                    hMIViewModel.WeightPercentage = (hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100;
                     decimal expectedWeight = 0;
                     int setpointSatisfy = 0;
 
                     if (hMIViewModel.HundChecked)
                     {
                         expectedWeight = 1 * hMIViewModel.Weight;
-                        setpointSatisfy = 0;
+                        setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.FifChecked)
                     {
                         expectedWeight = 0.5M * hMIViewModel.Weight;
-                        setpointSatisfy = 0;
+                        setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.TweChecked)
                     {
                         expectedWeight = 0.2M * hMIViewModel.Weight;
-                        setpointSatisfy = 0;
+                        setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.TenChecked)
                     {
                         expectedWeight = 0.1M * hMIViewModel.Weight;
-                        setpointSatisfy = 0;
+                        setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.CustomSetPointChecked1)
                     {
                         expectedWeight = (Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.Weight;
-                        setpointSatisfy = 0;
+                        setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.FivChecked)
                     {
                         expectedWeight = 0.05M * hMIViewModel.Weight;
-                        setpointSatisfy = 1;
+                        setpointSatisfy = 2;
                     }
                     else if (hMIViewModel.CustomSetPointChecked2)
                     {
                         expectedWeight = (Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.Weight;
-                        setpointSatisfy = 1;
-                    }
-                    else
-                    {
                         setpointSatisfy = 2;
                     }
 
                     switch (setpointSatisfy)
                     {
-                        case 0:
-                            if (weight == expectedWeight)
-                            {
-
-                                WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
-                                WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
-                                WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
-
-                                _dispathcer.Invoke(new Action(() =>
-                                {
-                                    red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                    red.Background = (Brush)bc.ConvertFromString("#cecece");
-                                    red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-
-                                    Green.Foreground = Brushes.Green;
-                                    Green.Background = Brushes.LightGreen;
-                                    Green.BorderBrush = Brushes.Green;
-
-                                    yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                    yellow.Background = (Brush)bc.ConvertFromString("#cecece");
-                                    yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-
-                                }));
-                            }
-                            break;
                         case 1:
                             if (weight == expectedWeight)
                             {
@@ -768,14 +774,29 @@ namespace PillDispencer.Pages
                                 yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
 
                             }));
+                            BatchCompleted();
                             break;
                     }
-
-
-                    //write Logic here..
                 }
 
             }
+        }
+
+        void BatchCompleted()
+        {
+            StopPortCommunication((int)Model.Module_Device_Type.UART);
+            StopPortCommunication((int)Model.Module_Device_Type.ModBus);
+            weighing.IsTurnedOn = false;
+            control.IsTurnedOn = false;
+            hMIViewModel.ActualWeight = 0;
+            hMIViewModel.Weight = 0;
+            hMIViewModel.WeightPercentage = 0;
+            MessageBox.Show("Batch has been completed.");
+        }
+        void StartBatch()
+        {
+            ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
+            Connect_control_card(control.PortName, control.BaudRate, control.DataBit, control.StopBit, control.Parity);
         }
 
         private void ControlDataReader()

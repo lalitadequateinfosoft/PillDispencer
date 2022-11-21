@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PillDispencer.PopUp"
         mc:Ignorable="d"
         Title="Device Information"
-        Height="250"
+        Height="350"
         Width="600"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -42,7 +42,7 @@
                             BorderThickness="1"
                             CornerRadius="5,5,0,0"
                             Padding="15">
-                    <Label x:Name="HeaderTitle" Content="Set Comparison Range and Unit" Foreground="White"/>
+                    <Label x:Name="HeaderTitle" Content="Set Stack Lights Registers" Foreground="White"/>
                 </Border>
                 <ScrollViewer Grid.Row="1" 
                             x:Name="OutPutArea"
@@ -50,7 +50,90 @@
 
                     <Grid  HorizontalAlignment="Stretch"
                            VerticalAlignment="Stretch">
-                        
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0"
+                               Grid.Column="0"
+                               Content="Slave Address"
+                               HorizontalContentAlignment="Center"
+                               VerticalContentAlignment="Center"/>
+                        <StackPanel 
+                            Grid.Row="0"
+                            Grid.Column="1">
+                            <TextBox x:Name="AddressBox"
+                                     Margin="5"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     BorderBrush="#eee"
+                                     BorderThickness="1"
+                                 />
+                        </StackPanel>
+
+                        <Label Grid.Row="1"
+                               Grid.Column="0"
+                               Content="Green Stack Light Register number"
+                               HorizontalContentAlignment="Center"
+                               VerticalContentAlignment="Center"/>
+                        <StackPanel 
+                            Grid.Row="1"
+                            Grid.Column="1">
+                            <TextBox x:Name="GreenLight"
+                                     Margin="5"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     BorderBrush="#eee"
+                                     BorderThickness="1"
+                                 />
+                        </StackPanel>
+                        <Label Grid.Row="2"
+                               Grid.Column="0"
+                               Content="Yellow Stack Light Register number"
+                               HorizontalContentAlignment="Center"
+                               VerticalContentAlignment="Center"/>
+                        <StackPanel 
+                            Grid.Row="2"
+                            Grid.Column="1">
+                            <TextBox x:Name="YellowLight"
+                                     Margin="5"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     BorderBrush="#eee"
+                                     BorderThickness="1"
+                                 />
+                        </StackPanel>
+                        <Label Grid.Row="3"
+                               Grid.Column="0"
+                               Content="Red Stack Light Register number"
+                               HorizontalContentAlignment="Center"
+                               VerticalContentAlignment="Center"/>
+                        <StackPanel 
+                            Grid.Row="2"
+                            Grid.Column="1">
+                            <TextBox x:Name="RedLight"
+                                     Margin="5"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     BorderBrush="#eee"
+                                     BorderThickness="1"
+                                 />
+                        </StackPanel>
                     </Grid>
                 </ScrollViewer>
                 <Grid 

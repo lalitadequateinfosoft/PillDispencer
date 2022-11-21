@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,12 +22,11 @@ namespace PillDispencer.PopUp
     /// </summary>
     public partial class DeviceInformationPopUp : Window
     {
-        private DeviceInfo deviceInfo;
+        private static readonly Regex _regex = new Regex("[^0-9-]+");
         public bool Canceled { get; set; }
         public DeviceInformationPopUp()
         {
             InitializeComponent();
-            deviceInfo = DeviceInformation.GetConnectedDevices();
         }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
@@ -37,8 +37,19 @@ namespace PillDispencer.PopUp
 
         private void BtnOk_Click(object sender, RoutedEventArgs e)
         {
-            Canceled = false;
-            Close();
+            if(!_regex.IsMatch(AddressBox.Text)
+                || !_regex.IsMatch(GreenLight.Text)
+                || !_regex.IsMatch(YellowLight.Text)
+                || !_regex.IsMatch(RedLight.Text))
+            {
+                Canceled = false;
+                Close();
+            }
+            else
+            {
+                MessageBox.Show("Please enter valid input");
+            }
+            
         }
     }
 }

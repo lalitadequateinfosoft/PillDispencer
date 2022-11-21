@@ -24,27 +24,7 @@ namespace PillDispencer.ViewModel
             CustomSetPoint2 = 0;
         }
 
-        private Visibility iSRuning;
-        public Visibility IsRunning
-        {
-            get => iSRuning;
-            set
-            {
-                iSRuning = value;
-                OnPropertyChanged(nameof(iSRuning));
-            }
-        }
-
-        private Visibility iSStop;
-        public Visibility IsStop
-        {
-            get => iSStop;
-            set
-            {
-                iSStop = value;
-                OnPropertyChanged(nameof(IsStop));
-            }
-        }
+        
 
         private bool _isNotRunning;
 
@@ -55,21 +35,21 @@ namespace PillDispencer.ViewModel
             {
                 _isNotRunning = value;
                 OnPropertyChanged(nameof(IsNotRunning));
-                if (_isNotRunning == true)
-                {
-                    IsRunning = Visibility.Visible;
-                    IsStop = Visibility.Hidden;
-                }
-                else
-                {
-                    IsRunning = Visibility.Hidden;
-                    IsStop = Visibility.Visible;
-                }
+            }
+        }
+        private bool _isBatchComplete;
 
+        public bool IsBatchComplete
+        {
+            get => _isBatchComplete;
+            set
+            {
+                _isBatchComplete = value;
+                OnPropertyChanged(nameof(IsBatchComplete));
             }
         }
 
-        
+
 
         private decimal _Zero;
         public decimal Zero
@@ -104,6 +84,17 @@ namespace PillDispencer.ViewModel
             }
         }
 
+        private decimal _TareWeightPercentage;
+        public decimal TareWeightPercentage
+        {
+            get => _TareWeightPercentage;
+            set
+            {
+                _TareWeightPercentage = value;
+                OnPropertyChanged(nameof(TareWeightPercentage));
+            }
+        }
+
         private decimal _Weight;
         public decimal Weight
         {
@@ -112,6 +103,27 @@ namespace PillDispencer.ViewModel
             {
                 _Weight = value;
                 OnPropertyChanged(nameof(Weight));
+            }
+        }
+        private decimal _ActualWeight;
+        public decimal ActualWeight
+        {
+            get => _ActualWeight;
+            set
+            {
+                _ActualWeight = value;
+                OnPropertyChanged(nameof(ActualWeight));
+            }
+        }
+
+        private decimal _WeightPercentage;
+        public decimal WeightPercentage
+        {
+            get => _WeightPercentage;
+            set
+            {
+                _WeightPercentage = value;
+                OnPropertyChanged(nameof(WeightPercentage));
             }
         }
 

@@ -47,7 +47,7 @@
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
                                     <Label Content="WEIGHT" FontSize="12" FontWeight="Medium" HorizontalAlignment="Left"/>
-                                    <Label Content="100%" FontSize="12" FontWeight="Medium" HorizontalAlignment="Right"/>
+                                    <Label Content="{Binding Path=WeightPercentage,StringFormat={}{0}%}" FontSize="12" FontWeight="Medium" HorizontalAlignment="Right"/>
                                 </Grid>
                                 <Border Grid.Row="1"
                                         BorderBrush="#4a4a4a"
@@ -262,7 +262,7 @@
                                     >
                                     <StackPanel Orientation="Vertical">
                                         <StackPanel>
-                                            <Label Content="Set Point 01" Foreground="#4a4a4a" FontWeight="Bold"/>
+                                            <Label Content="Set Point 02" Foreground="#4a4a4a" FontWeight="Bold"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <RadioButton
@@ -563,7 +563,7 @@
                                         Background="#0082ca"
                                         FontSize="16"
                                         FontWeight="Bold"
-                                        Visibility="{Binding Path=IsRunning}"
+                                        Visibility="{Binding Path=IsNotRunning}"
                                         >
                                         <Button.Resources>
                                             <Style TargetType="{x:Type Border}">
@@ -572,33 +572,14 @@
                                         </Button.Resources>
                                     </Button>
 
-                                    <Button
-                                        x:Name="Stop"
-                                        Content="STOP"
-                                        Click="Stop_Click"
-                                        Visibility="{Binding Path=IsStop}"
-                                        HorizontalAlignment="Right"
-                                        Width="120"
-                                        Height="50"
-                                        BorderBrush="#ff2b2a"
-                                        BorderThickness="1"
-                                        Foreground="White"
-                                        Background="#ff2b2a"
-                                        FontSize="16"
-                                        FontWeight="Bold"
-                                        >
-                                        <Button.Resources>
-                                            <Style TargetType="{x:Type Border}">
-                                                <Setter Property="CornerRadius" Value="2"/>
-                                            </Style>
-                                        </Button.Resources>
-                                    </Button>
+                                    
                                 </StackPanel>
                                 <StackPanel Margin="5">
                                     <Button 
                                         Click="Next_Click"
                                 x:Name="Next"
                                 Content="NEXT BATCH"
+                                        IsEnabled="{Binding Path=IsBatchComplete}"
                                 HorizontalAlignment="Right"
                                 Width="150"
                                 Height="50"
