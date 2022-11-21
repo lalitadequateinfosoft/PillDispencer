@@ -75,6 +75,8 @@ namespace PillDispencer.Pages
                 IsConfigured = false
             };
             deviceInfo = DeviceInformation.GetConnectedDevices();
+
+            LoadSytem();
         }
 
 
