@@ -106,6 +106,8 @@ namespace PillDispencer.Pages
         private void SaveTareWeight_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Tare Weight has been set");
+            LoadSytem();
+            ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
         }
 
         private void ResetTareWeight_Click(object sender, RoutedEventArgs e)
