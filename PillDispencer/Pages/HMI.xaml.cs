@@ -177,6 +177,10 @@ namespace PillDispencer.Pages
             if (this.DataContext is HMIViewModel model)
             {
                 model.IsNotRunning = true;
+                model.ActualWeight = 0;
+                model.Weight = 0;
+                model.WeightPercentage = 0;
+                model.TareWeight = 0;
             }
         }
 
@@ -907,8 +911,9 @@ namespace PillDispencer.Pages
         }
 
 
+
         #endregion
 
-
+        
     }
 }

@@ -563,7 +563,30 @@
                                         Background="#0082ca"
                                         FontSize="16"
                                         FontWeight="Bold"
-                                        Visibility="{Binding Path=IsNotRunning}"
+                                        IsEnabled="{Binding Path=IsNotRunning}"
+                                        >
+                                        <Button.Resources>
+                                            <Style TargetType="{x:Type Border}">
+                                                <Setter Property="CornerRadius" Value="2"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Margin="5">
+                                    <Button
+                                        Click="Stop_Click"
+                                        x:Name="STOP"
+                                        Content="STOP"
+                                        HorizontalAlignment="Right"
+                                        Width="120"
+                                        Height="50"
+                                        BorderBrush="Red"
+                                        BorderThickness="1"
+                                        Foreground="White"
+                                        Background="Red"
+                                        FontSize="16"
+                                        FontWeight="Bold"
+                                        IsEnabled="{Binding Path=IsRunning}"
                                         >
                                         <Button.Resources>
                                             <Style TargetType="{x:Type Border}">
@@ -572,13 +595,12 @@
                                         </Button.Resources>
                                     </Button>
 
-                                    
                                 </StackPanel>
                                 <StackPanel Margin="5">
                                     <Button 
                                         Click="Next_Click"
-                                x:Name="Next"
-                                Content="NEXT BATCH"
+                                        x:Name="Next"
+                                        Content="NEXT BATCH"
                                         IsEnabled="{Binding Path=IsBatchComplete}"
                                 HorizontalAlignment="Right"
                                 Width="150"
