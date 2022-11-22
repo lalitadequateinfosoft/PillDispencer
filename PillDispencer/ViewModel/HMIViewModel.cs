@@ -38,11 +38,9 @@ namespace PillDispencer.ViewModel
             }
         }
 
-        private bool _isRunning;
-
         public bool IsRunning
         {
-            get => !_isRunning;
+            get => !_isNotRunning;
         }
         private bool _isBatchComplete;
 
