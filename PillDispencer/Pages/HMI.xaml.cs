@@ -717,9 +717,9 @@ namespace PillDispencer.Pages
                     weight = weight - hMIViewModel.TareWeight;
                     if (hMIViewModel.IsNotRunning == true)
                     {
-                        hMIViewModel.ActualWeight = Math.Round(weight);
-                        hMIViewModel.Weight = Math.Round(weight);
-                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100);
+                        hMIViewModel.ActualWeight = Math.Round(weight, 2);
+                        hMIViewModel.Weight = Math.Round(weight,2);
+                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100,2);
                         WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
                         WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
                         WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
@@ -742,8 +742,8 @@ namespace PillDispencer.Pages
                         return;
                     }
 
-                    hMIViewModel.Weight = Math.Round(weight);
-                    hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100);
+                    hMIViewModel.Weight = Math.Round(weight, 2);
+                    hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
                     decimal expectedWeight = 0;
                     int setpointSatisfy = 0;
 
@@ -754,32 +754,32 @@ namespace PillDispencer.Pages
                     }
                     else if (hMIViewModel.FifChecked)
                     {
-                        expectedWeight = Math.Round(0.5M * hMIViewModel.Weight);
+                        expectedWeight = Math.Round(0.5M * hMIViewModel.Weight, 2);
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.TweChecked)
                     {
-                        expectedWeight = Math.Round(0.2M * hMIViewModel.Weight);
+                        expectedWeight = Math.Round(0.2M * hMIViewModel.Weight, 2);
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.TenChecked)
                     {
-                        expectedWeight = Math.Round(0.1M * hMIViewModel.Weight);
+                        expectedWeight = Math.Round(0.1M * hMIViewModel.Weight, 2);
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.CustomSetPointChecked1)
                     {
-                        expectedWeight = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.Weight);
+                        expectedWeight = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.Weight, 2);
                         setpointSatisfy = 1;
                     }
                     else if (hMIViewModel.FivChecked)
                     {
-                        expectedWeight = Math.Round(0.05M * hMIViewModel.Weight);
+                        expectedWeight = Math.Round(0.05M * hMIViewModel.Weight, 2);
                         setpointSatisfy = 2;
                     }
                     else if (hMIViewModel.CustomSetPointChecked2)
                     {
-                        expectedWeight = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.Weight);
+                        expectedWeight = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.Weight, 2);
                         setpointSatisfy = 2;
                     }
 
