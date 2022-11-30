@@ -22,6 +22,9 @@ namespace PillDispencer.ViewModel
             TareWeight = 0;
             CustomSetPoint1 = 0;
             CustomSetPoint2 = 0;
+            IsSaveEnabled=true;
+            CalculateSpan = false;
+            AutoZeroEnabled=false;
         }
 
         
@@ -35,6 +38,41 @@ namespace PillDispencer.ViewModel
             {
                 _isNotRunning = value;
                 OnPropertyChanged(nameof(IsNotRunning));
+            }
+        }
+
+        private bool _isSaveEnabled;
+
+        public bool IsSaveEnabled
+        {
+            get => _isSaveEnabled;
+            set
+            {
+                _isSaveEnabled = value;
+                OnPropertyChanged(nameof(IsSaveEnabled));
+            }
+        }
+        private bool _autoZeroEnabled;
+
+        public bool AutoZeroEnabled
+        {
+            get => _autoZeroEnabled;
+            set
+            {
+                _autoZeroEnabled = value;
+                OnPropertyChanged(nameof(AutoZeroEnabled));
+            }
+        }
+
+        private bool _CalculateSpan;
+
+        public bool CalculateSpan
+        {
+            get => _CalculateSpan;
+            set
+            {
+                _CalculateSpan = value;
+                OnPropertyChanged(nameof(CalculateSpan));
             }
         }
 

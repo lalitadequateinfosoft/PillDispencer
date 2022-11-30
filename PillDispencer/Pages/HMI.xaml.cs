@@ -89,7 +89,21 @@ namespace PillDispencer.Pages
 
         private void SaveWeight_Click(object sender, RoutedEventArgs e)
         {
+            var textbox = sender as System.Windows.Controls.TextBox;
             MessageBox.Show("Weight has been set");
+            if (this.DataContext is HMIViewModel model)
+            {
+                if (!string.IsNullOrEmpty(textbox.Text))
+                {
+                    string textfield=textbox.Text.ToString();
+                    if (textfield.ToLower().Contains("lbs"))
+                    {
+                        textfield.Replace("LBS", "");
+                    }
+                    model.Weight = Convert.ToDecimal(textfield);
+                    model.CalculateSpan = true;
+                }
+            }
         }
 
         private void ResetWeight_Click(object sender, RoutedEventArgs e)
@@ -106,8 +120,6 @@ namespace PillDispencer.Pages
         private void SaveTareWeight_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Tare Weight has been set");
-            LoadSytem();
-            ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
         }
 
         private void ResetTareWeight_Click(object sender, RoutedEventArgs e)
@@ -130,7 +142,12 @@ namespace PillDispencer.Pages
             {
                 model.Zero = 0;
                 model.Span = 0;
-                MessageBox.Show("Tare Weight has been reset");
+                model.ActualWeight= 0;
+                model.Weight = 0;
+                model.WeightPercentage = 0;
+                MessageBox.Show("Calibration Weight has been reset");
+
+
             }
         }
 
@@ -217,9 +234,9 @@ namespace PillDispencer.Pages
                     control.StopBit = dailog.Stopbit;
                     control.Parity = dailog.ParityValue;
 
-                    DeviceInformationPopUp deviceInformation=new DeviceInformationPopUp();
+                    DeviceInformationPopUp deviceInformation = new DeviceInformationPopUp();
                     deviceInformation.ShowDialog();
-                    if(!deviceInformation.Canceled)
+                    if (!deviceInformation.Canceled)
                     {
                         control.SlaveAddress = Convert.ToInt32(deviceInformation.AddressBox.Text.ToString());
                         control.Green = new RegisterConfiguration
@@ -241,6 +258,8 @@ namespace PillDispencer.Pages
                     }
                 }
             }
+
+            ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
         }
 
         private void ExecuteLogic()
@@ -665,14 +684,42 @@ namespace PillDispencer.Pages
                     Match m = re.Match(outP);
                     decimal balance = Convert.ToDecimal(m.Value);
 
+                    if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning==true)
+                    {
+                        hMIViewModel.Zero = balance;
+                        return;
+                    }
+
+                    if (hMIViewModel.CalculateSpan == true && hMIViewModel.IsNotRunning == true)
+                    {
+                        decimal diff = hMIViewModel.Zero - balance;
+                        decimal divident = diff / hMIViewModel.Weight;
+                        hMIViewModel.Span = divident;
+                        hMIViewModel.CalculateSpan = false;
+                        hMIViewModel.Weight = 0;
+                        return;
+                    }
+
+                    decimal dweight = Convert.ToDecimal(hMIViewModel.Zero * 20) / 100;
+                    decimal plus = hMIViewModel.Zero + dweight;
+                    decimal minus = hMIViewModel.Zero - dweight;
+                    if (balance<= plus || balance>= minus && hMIViewModel.AutoZeroEnabled==true)
+                    {
+                        hMIViewModel.Weight = 0;
+                        hMIViewModel.ActualWeight = 0;
+                        hMIViewModel.WeightPercentage = 0;
+                        return;
+                    }
+
+
                     decimal weight = balance - hMIViewModel.Zero;
-                    weight = weight * hMIViewModel.Span;
+                    weight = weight / hMIViewModel.Span;
                     weight = weight - hMIViewModel.TareWeight;
-                    if (hMIViewModel.ActualWeight <= 0 && hMIViewModel.IsNotRunning==true)
+                    if (hMIViewModel.IsNotRunning == true)
                     {
                         hMIViewModel.ActualWeight = Math.Round(weight);
                         hMIViewModel.Weight = Math.Round(weight);
-                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight/ hMIViewModel.ActualWeight)*100);
+                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100);
                         WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
                         WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
                         WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
@@ -695,7 +742,7 @@ namespace PillDispencer.Pages
                         return;
                     }
 
-                    hMIViewModel.Weight = Math.Round(weight); 
+                    hMIViewModel.Weight = Math.Round(weight);
                     hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100);
                     decimal expectedWeight = 0;
                     int setpointSatisfy = 0;
@@ -793,7 +840,7 @@ namespace PillDispencer.Pages
 
         void BatchCompleted()
         {
-            StopPortCommunication((int)Model.Module_Device_Type.UART);
+            //StopPortCommunication((int)Model.Module_Device_Type.UART);
             StopPortCommunication((int)Model.Module_Device_Type.ModBus);
             weighing.IsTurnedOn = false;
             control.IsTurnedOn = false;
@@ -914,6 +961,6 @@ namespace PillDispencer.Pages
 
         #endregion
 
-        
+
     }
 }

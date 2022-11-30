@@ -187,8 +187,8 @@
                                                  x:Name="fiftyCheck"
                                                  Content="50%"
                                                  IsChecked="{Binding Path=FifChecked,Mode=TwoWay}"
-                                                 BorderBrush="#6ab4e1" 
-                                                 Background="#0083cb"
+                                                 BorderBrush="#959595" 
+                                                 Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
@@ -432,6 +432,7 @@
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -495,6 +496,25 @@
                                                    VerticalContentAlignment="Center"
                                                 Height="40"
                                                 />
+
+                                            <StackPanel Orientation="Horizontal"
+                                                        Grid.Row="2"
+                                                        Grid.ColumnSpan="2"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center">
+                                                <StackPanel>
+                                                    <CheckBox x:Name="Autozero"
+                                                      IsChecked="{Binding Path=AutoZeroEnabled,Mode=TwoWay}"
+                                                      IsEnabled="{Binding Path=IsNotRunning}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                                    <Label Content="AUTO ZERO"
+                                                           Foreground="#a8a8a8"
+                                                           FontSize="10"
+                                                           FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </StackPanel>
+
                                             <Button 
                                                 x:Name="SaveCalibration"
                                                 Click="SaveCalibration_Click"
@@ -506,7 +526,7 @@
                                                 Background="#0082ca"
                                                 FontSize="16"
                                                 FontWeight="Bold"
-                                                Grid.Row="2"
+                                                Grid.Row="3"
                                                 Grid.Column="0"
                                                 Margin="10,10,10,5"
                                                 Height="40" >
@@ -516,9 +536,6 @@
                                                     </Style>
                                                 </Button.Resources>
                                             </Button>
-                                            
-                                            
-
                                             <Button 
                                                 x:Name="ResetCalibration"
                                                 Click="ResetCalibration_Click"
@@ -530,7 +547,7 @@
                                                 Background="#a8a8a8"
                                                 FontSize="16"
                                                 FontWeight="Bold"
-                                                Grid.Row="2"
+                                                Grid.Row="3"
                                                 Grid.Column="1"
                                                 Margin="10,10,10,5"
                                                 Height="40" >
