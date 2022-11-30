@@ -1,4 +1,5 @@
-﻿using Ozeki;
+﻿using onvif.services;
+using Ozeki;
 using PillDispencer.Model;
 using PillDispencer.PopUp;
 using PillDispencer.Services;
@@ -23,6 +24,7 @@ using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using utils;
 using static AForge.Imaging.Filters.HitAndMiss;
 
 namespace PillDispencer.Pages
@@ -89,21 +91,8 @@ namespace PillDispencer.Pages
 
         private void SaveWeight_Click(object sender, RoutedEventArgs e)
         {
-            var textbox = sender as System.Windows.Controls.TextBox;
+            
             MessageBox.Show("Weight has been set");
-            if (this.DataContext is HMIViewModel model)
-            {
-                if (!string.IsNullOrEmpty(textbox.Text))
-                {
-                    string textfield=textbox.Text.ToString();
-                    if (textfield.ToLower().Contains("lbs"))
-                    {
-                        textfield.Replace("LBS", "");
-                    }
-                    model.Weight = Convert.ToDecimal(textfield);
-                    model.CalculateSpan = true;
-                }
-            }
         }
 
         private void ResetWeight_Click(object sender, RoutedEventArgs e)
@@ -141,8 +130,7 @@ namespace PillDispencer.Pages
             if (this.DataContext is HMIViewModel model)
             {
                 model.Zero = 0;
-                model.Span = 0;
-                model.ActualWeight= 0;
+                model.ActualWeight = 0;
                 model.Weight = 0;
                 model.WeightPercentage = 0;
                 MessageBox.Show("Calibration Weight has been reset");
@@ -159,7 +147,7 @@ namespace PillDispencer.Pages
         {
             if (this.DataContext is HMIViewModel model)
             {
-                if (model.Weight == 0 || model.TareWeight == 0 || model.Zero == 0 || model.Span == 0)
+                if (model.ActualWeight == 0 || model.TareWeight == 0 || model.Zero == 0 || model.Span == 0)
                 {
                     MessageBox.Show("Please set up weight, tare weight and other configurations.");
                     return;
@@ -432,7 +420,7 @@ namespace PillDispencer.Pages
                     weighing.SerialDevice.Read(recBuf, 0, recBuf.Length);
                     weighing.ReceiveBufferQueue = new Queue<byte[]>();
                     weighing.ReceiveBufferQueue.Enqueue(recBuf);
-                    weighing.LastResponseReceived = DateTime.Now;
+                    weighing.LastResponseReceived = System.DateTime.Now;
                     weighing.IsComplete = true;
                     recBuf = new byte[REC_BUF_SIZE];
                     break;
@@ -485,7 +473,7 @@ namespace PillDispencer.Pages
                         control.ReceiveBufferQueue.Enqueue(recBuf);
                         recBuf = new byte[REC_BUF_SIZE];
                     }
-                    control.LastResponseReceived = DateTime.Now;
+                    control.LastResponseReceived = System.DateTime.Now;
 
                     break;
             }
@@ -684,26 +672,39 @@ namespace PillDispencer.Pages
                     Match m = re.Match(outP);
                     decimal balance = Convert.ToDecimal(m.Value);
 
-                    if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning==true)
+                    _dispathcer.Invoke(new Action(() =>
+                    {
+                        Message.Text = "Reading weight..";
+
+                    }));
+                    if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning == true)
                     {
                         hMIViewModel.Zero = balance;
+                        _dispathcer.Invoke(new Action(() =>
+                        {
+                            Message.Text = "Zero value has been set, Now put some weight on the scale and enter the actual weight in span to set calibration factor.";
+                        }));
                         return;
                     }
 
                     if (hMIViewModel.CalculateSpan == true && hMIViewModel.IsNotRunning == true)
                     {
-                        decimal diff = hMIViewModel.Zero - balance;
-                        decimal divident = diff / hMIViewModel.Weight;
-                        hMIViewModel.Span = divident;
+                        decimal diff = balance - hMIViewModel.Zero;
+                        decimal divident = diff / hMIViewModel.Span;
+                        hMIViewModel.Factor = divident;
                         hMIViewModel.CalculateSpan = false;
-                        hMIViewModel.Weight = 0;
+                        _dispathcer.Invoke(new Action(() =>
+                        {
+                            Message.Text = "Please set tare weight if needed...";
+                        }));
+                        //hMIViewModel.Weight = 0;
                         return;
                     }
 
                     decimal dweight = Convert.ToDecimal(hMIViewModel.Zero * 20) / 100;
                     decimal plus = hMIViewModel.Zero + dweight;
                     decimal minus = hMIViewModel.Zero - dweight;
-                    if (balance<= plus || balance>= minus && hMIViewModel.AutoZeroEnabled==true)
+                    if (balance <= plus || balance >= minus && hMIViewModel.AutoZeroEnabled == true && hMIViewModel.Factor > 0)
                     {
                         hMIViewModel.Weight = 0;
                         hMIViewModel.ActualWeight = 0;
@@ -713,13 +714,13 @@ namespace PillDispencer.Pages
 
 
                     decimal weight = balance - hMIViewModel.Zero;
-                    weight = weight / hMIViewModel.Span;
+                    weight = weight / hMIViewModel.Factor;
                     weight = weight - hMIViewModel.TareWeight;
-                    if (hMIViewModel.IsNotRunning == true)
+                    if (hMIViewModel.ActualWeight <= 0 && hMIViewModel.IsNotRunning == true)
                     {
                         hMIViewModel.ActualWeight = Math.Round(weight, 2);
-                        hMIViewModel.Weight = Math.Round(weight,2);
-                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100,2);
+                        hMIViewModel.Weight = Math.Round(weight, 2);
+                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
                         WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
                         WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
                         WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
@@ -829,6 +830,10 @@ namespace PillDispencer.Pages
                                 yellow.Background = (Brush)bc.ConvertFromString("#cecece");
                                 yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
 
+                            }));
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                Message.Text = "BATCH COMPLETED..";
                             }));
                             BatchCompleted();
                             break;
@@ -959,8 +964,20 @@ namespace PillDispencer.Pages
 
 
 
+
         #endregion
 
-
+        private void Span_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textb = sender as System.Windows.Controls.TextBox;
+            if(this.DataContext is HMIViewModel model)
+            {
+                if(!string.IsNullOrEmpty(textb.Text.ToString()))
+                {
+                    model.Span = Convert.ToDecimal(textb.Text.ToString());
+                    model.CalculateSpan = true;
+                }
+            }
+        }
     }
 }

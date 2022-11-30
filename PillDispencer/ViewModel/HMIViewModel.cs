@@ -116,6 +116,17 @@ namespace PillDispencer.ViewModel
             }
         }
 
+        private decimal _factor;
+        public decimal Factor
+        {
+            get => _factor;
+            set
+            {
+                _factor = value;
+                OnPropertyChanged(nameof(Factor));
+            }
+        }
+
         private decimal _TareWeight;
         public decimal TareWeight
         {
