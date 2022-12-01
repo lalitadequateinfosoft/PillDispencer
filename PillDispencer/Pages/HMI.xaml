@@ -644,7 +644,7 @@
                 </Border>
             </Grid>
             <Grid Grid.Row="2">
-                <TextBlock TextWrapping="WrapWithOverflow" x:Name="Message" FontSize="25" FontWeight="Bold" Width="Auto" Height="Auto" Foreground="Red"/>
+                <TextBlock TextWrapping="WrapWithOverflow" HorizontalAlignment="Center" x:Name="Message" FontSize="25" FontWeight="Bold" Width="Auto" Height="Auto" Foreground="Red"/>
             </Grid>
         </Grid>
     </Border>

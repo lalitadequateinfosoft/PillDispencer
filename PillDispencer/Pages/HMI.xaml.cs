@@ -91,7 +91,7 @@ namespace PillDispencer.Pages
 
         private void SaveWeight_Click(object sender, RoutedEventArgs e)
         {
-            
+
             MessageBox.Show("Weight has been set");
         }
 
@@ -245,6 +245,7 @@ namespace PillDispencer.Pages
                         control.IsConfigured = true;
                     }
                 }
+                else return;
             }
 
             ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
@@ -687,7 +688,16 @@ namespace PillDispencer.Pages
                         return;
                     }
 
-                    if (hMIViewModel.CalculateSpan == true && hMIViewModel.IsNotRunning == true)
+                    if (hMIViewModel.Span <= 0)
+                    {
+                        _dispathcer.Invoke(new Action(() =>
+                        {
+                            Message.Text = "Please put some weight on the scale and set span value for calibrations calculation...";
+                        }));
+                        return;
+                    }
+
+                    if (hMIViewModel.CalculateSpan == true && hMIViewModel.IsNotRunning == true && hMIViewModel.Span > 0)
                     {
                         decimal diff = balance - hMIViewModel.Zero;
                         decimal divident = diff / hMIViewModel.Span;
@@ -698,6 +708,14 @@ namespace PillDispencer.Pages
                             Message.Text = "Please set tare weight if needed...";
                         }));
                         //hMIViewModel.Weight = 0;
+                        return;
+                    }
+                    if (hMIViewModel.Factor <= 0)
+                    {
+                        _dispathcer.Invoke(new Action(() =>
+                        {
+                            Message.Text = "calibrations is zero, Please enter some weight to calculate calibration.";
+                        }));
                         return;
                     }
 
@@ -711,6 +729,8 @@ namespace PillDispencer.Pages
                         hMIViewModel.WeightPercentage = 0;
                         return;
                     }
+
+
 
 
                     decimal weight = balance - hMIViewModel.Zero;
@@ -739,9 +759,17 @@ namespace PillDispencer.Pages
                             yellow.Background = (Brush)bc.ConvertFromString("#cecece");
                             yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
 
+                            Message.Text = "Please start the program by clicking run.";
+
                         }));
+
                         return;
                     }
+
+                    _dispathcer.Invoke(new Action(() =>
+                    {
+                        Message.Text = "Processing..";
+                    }));
 
                     hMIViewModel.Weight = Math.Round(weight, 2);
                     hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
@@ -857,6 +885,10 @@ namespace PillDispencer.Pages
         }
         void StartBatch()
         {
+            _dispathcer.Invoke(new Action(() =>
+            {
+                Message.Text = "Starting new batch..";
+            }));
             ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
             Connect_control_card(control.PortName, control.BaudRate, control.DataBit, control.StopBit, control.Parity);
         }
@@ -970,9 +1002,9 @@ namespace PillDispencer.Pages
         private void Span_TextChanged(object sender, TextChangedEventArgs e)
         {
             var textb = sender as System.Windows.Controls.TextBox;
-            if(this.DataContext is HMIViewModel model)
+            if (this.DataContext is HMIViewModel model)
             {
-                if(!string.IsNullOrEmpty(textb.Text.ToString()))
+                if (!string.IsNullOrEmpty(textb.Text.ToString()))
                 {
                     model.Span = Convert.ToDecimal(textb.Text.ToString());
                     model.CalculateSpan = true;
