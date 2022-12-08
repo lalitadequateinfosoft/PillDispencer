@@ -42,7 +42,19 @@ namespace PillDispencer.ViewModel
             }
         }
 
-        
+        private string _hpassword;
+
+        public string HPassword
+        {
+            get => _hpassword;
+            set
+            {
+                _hpassword = value;
+                OnPropertyChanged(nameof(HPassword));
+            }
+        }
+
+
 
         #region property changed event
 
