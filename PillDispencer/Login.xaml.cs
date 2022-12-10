@@ -60,17 +60,17 @@ namespace PillDispencer
         {
             if (this.DataContext is LoginViewModel model)
             {
-                var box=sender as TextBox;
-                if(string.IsNullOrEmpty(box.Text.ToString()))
-                {
-                    model.Password = string.Empty;
-                    model.HPassword= string.Empty;
-                    return;
-                }
+                //var box=sender as TextBox;
+                //if(string.IsNullOrEmpty(box.Text.ToString()))
+                //{
+                //    model.Password = string.Empty;
+                //    model.HPassword= string.Empty;
+                //    return;
+                //}
 
-                model.Password= box.Text.ToString();
-                var text=box.Text.ToString();   
-                model.HPassword= new string('*', text.Length);
+                //model.Password= box.Text.ToString();
+                //var text=box.Text.ToString();   
+                //model.HPassword= new string('*', text.Length);
             }
         }
     }

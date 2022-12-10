@@ -122,7 +122,7 @@
                                         <TextBox  
                                         x:Name="txtPass"
                                         FontFamily="ms-appx:///Assets/PassDot.ttf#PassDot"
-                                        Text="{Binding Path=HPassword}"
+                                        Text="{Binding Path=Password, Mode=TwoWay}"
                                             TextChanged="txtPass_TextChanged"
                                         FontSize="20"
                                             BorderThickness="0">

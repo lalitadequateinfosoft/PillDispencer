@@ -155,7 +155,7 @@ namespace PillDispencer.Pages
         {
             if (this.DataContext is HMIViewModel model)
             {
-                if (model.ActualWeight == 0 || model.TareWeight == 0 || model.Zero == 0 || model.Span == 0)
+                if (model.ActualWeight == 0 || model.Zero == 0 || model.Span == 0)
                 {
                     MessageBox.Show("Please set up weight, tare weight and other configurations.");
                     return;
