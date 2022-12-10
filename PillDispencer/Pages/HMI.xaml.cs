@@ -1,5 +1,7 @@
-﻿using onvif.services;
+﻿using ControlzEx.Standard;
+using onvif.services;
 using Ozeki;
+using Ozeki.Media;
 using PillDispencer.Model;
 using PillDispencer.PopUp;
 using PillDispencer.Services;
@@ -681,7 +683,7 @@ namespace PillDispencer.Pages
 
                     _dispathcer.Invoke(new Action(() =>
                     {
-                        Message.Text = "Reading weight..";
+                        MessageLog.Text = "Reading weight..";
 
                     }));
                     if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning == true)
@@ -689,7 +691,7 @@ namespace PillDispencer.Pages
                         hMIViewModel.Zero = balance;
                         _dispathcer.Invoke(new Action(() =>
                         {
-                            Message.Text = "Zero value has been set, Now put some weight on the scale and enter the actual weight in span to set calibration factor.";
+                            MessageLog.Text = "Zero value has been set, Now put some weight on the scale and enter the actual weight in span to set calibration factor.";
                         }));
                         return;
                     }
@@ -698,7 +700,7 @@ namespace PillDispencer.Pages
                     {
                         _dispathcer.Invoke(new Action(() =>
                         {
-                            Message.Text = "Please put some weight on the scale and set span value for calibrations calculation...";
+                            MessageLog.Text = "Please put some weight on the scale and set span value for calibrations calculation...";
                         }));
                         return;
                     }
@@ -711,7 +713,7 @@ namespace PillDispencer.Pages
                         hMIViewModel.CalculateSpan = false;
                         _dispathcer.Invoke(new Action(() =>
                         {
-                            Message.Text = "Calibration completed, Please set tare weight if needed...";
+                            MessageLog.Text = "Calibration completed, Please set tare weight if needed...";
                         }));
                         //hMIViewModel.Weight = 0;
                         return;
@@ -720,7 +722,7 @@ namespace PillDispencer.Pages
                     {
                         _dispathcer.Invoke(new Action(() =>
                         {
-                            Message.Text = "calibrations is zero, Please enter some weight to calculate calibration.";
+                            MessageLog.Text = "calibrations is zero, Please enter some weight to calculate calibration.";
                         }));
                         return;
                     }
@@ -739,13 +741,13 @@ namespace PillDispencer.Pages
                     decimal weight = balance - hMIViewModel.Zero;
                     weight = weight / hMIViewModel.Factor;
                     weight = weight - hMIViewModel.TareWeight;
-                    if (hMIViewModel.IsNotRunning == true && hMIViewModel.ActualWeight<=0)
+                    if (hMIViewModel.IsNotRunning == true && hMIViewModel.ActualWeight <= 0)
                     {
                         hMIViewModel.Weight = Math.Round(weight, 2);
 
                         _dispathcer.Invoke(new Action(() =>
                         {
-                            Message.Text = "Please Set 100% weight.";
+                            MessageLog.Text = "Please Set 100% weight.";
                         }));
                         return;
                     }
@@ -771,65 +773,90 @@ namespace PillDispencer.Pages
                             yellow.Background = (Brush)bc.ConvertFromString("#cecece");
                             yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
 
-                            Message.Text = "Please start the program by clicking run.";
+                            MessageLog.Text = "Please start the program by clicking run.";
 
                         }));
 
                         return;
                     }
 
-                    
+
 
                     _dispathcer.Invoke(new Action(() =>
                     {
-                        Message.Text = "Processing started..";
+                        MessageLog.Text = "Processing started..";
                     }));
 
                     hMIViewModel.Weight = Math.Round(weight, 2);
                     hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
-                    decimal expectedWeight = 0;
+                    decimal expectedWeight100 = 1 * hMIViewModel.ActualWeight;
+                    decimal expectedWeight50 = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
+                    decimal expectedWeight20 = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
+                    decimal expectedWeight10 = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
+                    decimal expectedWeightC1 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
+                    decimal expectedWeight5 = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
+                    decimal expectedWeightC2 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
                     int setpointSatisfy = 0;
+                    decimal minExcpectedWeight = 0;
+                    decimal maxExcpectedWeight = 0;
 
                     if (hMIViewModel.HundChecked)
                     {
-                        expectedWeight = 1 * hMIViewModel.ActualWeight;
                         setpointSatisfy = 1;
+                        minExcpectedWeight = expectedWeight100;
+                        maxExcpectedWeight = expectedWeight100;
                     }
                     else if (hMIViewModel.FifChecked)
                     {
-                        expectedWeight = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
                         setpointSatisfy = 1;
+                        minExcpectedWeight = expectedWeight20;
+                        maxExcpectedWeight = expectedWeight50;
                     }
                     else if (hMIViewModel.TweChecked)
                     {
-                        expectedWeight = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
                         setpointSatisfy = 1;
+                        minExcpectedWeight = expectedWeight10;
+                        maxExcpectedWeight = expectedWeight20;
                     }
                     else if (hMIViewModel.TenChecked)
                     {
-                        expectedWeight = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
                         setpointSatisfy = 1;
+                        minExcpectedWeight = expectedWeight10;
+                        maxExcpectedWeight = expectedWeight20;
                     }
                     else if (hMIViewModel.CustomSetPointChecked1)
                     {
-                        expectedWeight = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
                         setpointSatisfy = 1;
+                        List<decimal> decimals = new List<decimal>() {
+                        expectedWeight100,
+                        expectedWeight50,
+                        expectedWeight20,
+                        expectedWeight10,
+                        expectedWeightC1
+                        };
+
+                        var diffList = decimals.Select(x => new { n = x, diff = Math.Abs(x - expectedWeightC1) });
+                        var result = diffList.Where(x => x.diff == diffList.Select(y => y.diff).Min()).First();
+                        minExcpectedWeight = result.n;
+                        maxExcpectedWeight = expectedWeightC1;
                     }
                     else if (hMIViewModel.FivChecked)
                     {
-                        expectedWeight = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
                         setpointSatisfy = 2;
+                        minExcpectedWeight = expectedWeightC2;
+                        maxExcpectedWeight = expectedWeight5;
                     }
                     else if (hMIViewModel.CustomSetPointChecked2)
                     {
-                        expectedWeight = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
                         setpointSatisfy = 2;
+                        minExcpectedWeight = weight;
+                        maxExcpectedWeight = expectedWeightC2;
                     }
 
                     switch (setpointSatisfy)
                     {
                         case 1:
-                            if (weight == expectedWeight)
+                            if (minExcpectedWeight > weight && weight <= maxExcpectedWeight)
                             {
 
                                 WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
@@ -854,30 +881,33 @@ namespace PillDispencer.Pages
                             }
                             break;
                         case 2:
-                            WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
-                            WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
-                            WriteControCardState(control.Red.RegisterNo, 1, control.SlaveAddress);
-
-                            _dispathcer.Invoke(new Action(() =>
+                            if (minExcpectedWeight > weight && weight <= maxExcpectedWeight)
                             {
-                                red.Foreground = Brushes.Red;
-                                red.Background = Brushes.LightGoldenrodYellow;
-                                red.BorderBrush = Brushes.Red;
+                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
+                                WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
+                                WriteControCardState(control.Red.RegisterNo, 1, control.SlaveAddress);
 
-                                Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                Green.Background = (Brush)bc.ConvertFromString("#cecece");
-                                Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                _dispathcer.Invoke(new Action(() =>
+                                {
+                                    red.Foreground = Brushes.Red;
+                                    red.Background = Brushes.LightGoldenrodYellow;
+                                    red.BorderBrush = Brushes.Red;
 
-                                yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                yellow.Background = (Brush)bc.ConvertFromString("#cecece");
-                                yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                    Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                    Green.Background = (Brush)bc.ConvertFromString("#cecece");
+                                    Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
 
-                            }));
-                            _dispathcer.Invoke(new Action(() =>
-                            {
-                                Message.Text = "BATCH COMPLETED..";
-                            }));
-                            BatchCompleted();
+                                    yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                    yellow.Background = (Brush)bc.ConvertFromString("#cecece");
+                                    yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+
+                                }));
+                                _dispathcer.Invoke(new Action(() =>
+                                {
+                                    MessageLog.Text = "BATCH COMPLETED..";
+                                }));
+                                BatchCompleted();
+                            }
                             break;
                     }
                 }
@@ -891,7 +921,6 @@ namespace PillDispencer.Pages
             StopPortCommunication((int)Model.Module_Device_Type.ModBus);
             weighing.IsTurnedOn = false;
             control.IsTurnedOn = false;
-            hMIViewModel.ActualWeight = 0;
             hMIViewModel.Weight = 0;
             hMIViewModel.WeightPercentage = 0;
             hMIViewModel.IsNotRunning = true;
@@ -901,7 +930,7 @@ namespace PillDispencer.Pages
         {
             _dispathcer.Invoke(new Action(() =>
             {
-                Message.Text = "Starting new batch..";
+                MessageLog.Text = "Starting new batch..";
             }));
             ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
             Connect_control_card(control.PortName, control.BaudRate, control.DataBit, control.StopBit, control.Parity);
