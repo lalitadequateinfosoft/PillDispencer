@@ -329,7 +329,8 @@
                                                    FontWeight="Bold"
                                                    Foreground="#404040"
                                                    HorizontalAlignment="Right"
-                                                   Content="OFF"/>
+                                                   Content="OFF"
+                                                   x:Name="TextGreen"/>
                                             <RadioButton 
                                                 x:Name="Green"
                                                          Grid.Row="1"
@@ -342,7 +343,8 @@
                                                          HorizontalContentAlignment="Center"
                                                          VerticalContentAlignment="Center"
                                                          FontSize="14"
-                                                         Foreground="#b8b8b8"/>
+                                                         Foreground="#b8b8b8"
+                                                GroupName="StackLights"/>
                                         </Grid>
                                     </Border>
                                     <Border 
@@ -362,8 +364,10 @@
                                                    FontWeight="Bold"
                                                    Foreground="#404040"
                                                    HorizontalAlignment="Right"
-                                                   Content="OFF"/>
+                                                   Content="OFF"
+                                                   x:Name="TextYellow"/>
                                             <RadioButton x:Name="yellow"
+                                                         GroupName="StackLights"
                                                          Grid.Row="1"
                                                          Content="YELLOW"
                                                          BorderBrush="#e6e6e6"
@@ -394,8 +398,10 @@
                                                    FontWeight="Bold"
                                                    Foreground="#404040"
                                                    HorizontalAlignment="Right"
-                                                   Content="OFF"/>
+                                                   Content="OFF"
+                                                    x:Name="TextRed"/>
                                             <RadioButton x:Name="red"
+                                                         GroupName="StackLights"
                                                          Grid.Row="1"
                                                          Content="RED"
                                                          BorderBrush="#e6e6e6"

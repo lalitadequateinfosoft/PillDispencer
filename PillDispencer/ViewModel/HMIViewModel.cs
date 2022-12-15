@@ -41,6 +41,51 @@ namespace PillDispencer.ViewModel
             }
         }
 
+        private decimal _setPoint1;
+        public decimal SetPoint1
+        {
+            get => _setPoint1;
+            set
+            {
+                _setPoint1 = value;
+                OnPropertyChanged(nameof(SetPoint1));
+            }
+        }
+        private bool _isSetPoint1Passed;
+
+        public bool IsSetPoint1Passed
+        {
+            get => _isSetPoint1Passed;
+            set
+            {
+                _isSetPoint1Passed = value;
+                OnPropertyChanged(nameof(IsSetPoint1Passed));
+            }
+        }
+
+        private decimal _setPoint2;
+        public decimal SetPoint2
+        {
+            get => _setPoint2;
+            set
+            {
+                _setPoint2 = value;
+                OnPropertyChanged(nameof(SetPoint2));
+            }
+        }
+
+        private bool _isSetPoint2Passed;
+
+        public bool IsSetPoint2Passed
+        {
+            get => _isSetPoint2Passed;
+            set
+            {
+                _isSetPoint2Passed = value;
+                OnPropertyChanged(nameof(IsSetPoint2Passed));
+            }
+        }
+
         private bool _isSaveEnabled;
 
         public bool IsSaveEnabled

@@ -2,6 +2,7 @@
 using onvif.services;
 using Ozeki;
 using Ozeki.Media;
+using Ozeki.VoIP;
 using PillDispencer.Model;
 using PillDispencer.PopUp;
 using PillDispencer.Services;
@@ -50,7 +51,7 @@ namespace PillDispencer.Pages
         HMIViewModel hMIViewModel;
         private DeviceInfo deviceInfo;
         System.Timers.Timer ExecutionTimer = new System.Timers.Timer();
-
+        
 
         #region function Variable
         const int REC_BUF_SIZE = 10000;
@@ -262,6 +263,8 @@ namespace PillDispencer.Pages
         private void ExecuteLogic()
         {
             hMIViewModel.IsNotRunning = false;
+            hMIViewModel.IsSetPoint1Passed = false;
+            hMIViewModel.IsSetPoint2Passed = false;
             ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
             Connect_control_card(control.PortName, control.BaudRate, control.DataBit, control.StopBit, control.Parity);
         }
@@ -764,18 +767,60 @@ namespace PillDispencer.Pages
                             red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
                             red.Background = (Brush)bc.ConvertFromString("#cecece");
                             red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                            TextRed.Content = "OFF";
 
                             Green.Foreground = Brushes.Green;
                             Green.Background = Brushes.LightGreen;
                             Green.BorderBrush = Brushes.Green;
+                            Green.IsChecked = true;
+                            TextGreen.Content = "ON";
 
                             yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
                             yellow.Background = (Brush)bc.ConvertFromString("#cecece");
                             yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                            TextYellow.Content = "OFF";
 
                             MessageLog.Text = "Please start the program by clicking run.";
 
                         }));
+
+                        decimal expectedWeight100 = 1 * hMIViewModel.ActualWeight;
+                        decimal expectedWeight50 = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeight20 = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeight10 = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeightC1 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeight5 = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeightC2 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
+
+                        if (hMIViewModel.HundChecked)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeight100;
+                        }
+                        else if (hMIViewModel.FifChecked)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeight50;
+                        }
+                        else if (hMIViewModel.TweChecked)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeight20;
+                        }
+                        else if (hMIViewModel.TenChecked)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeight10;
+                        }
+                        else if (hMIViewModel.CustomSetPointChecked1)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeightC1;
+                        }
+
+                        if (hMIViewModel.FivChecked)
+                        {
+                            hMIViewModel.SetPoint2 = expectedWeight5;
+                        }
+                        else if (hMIViewModel.CustomSetPointChecked2)
+                        {
+                            hMIViewModel.SetPoint2 = expectedWeightC2;
+                        }
 
                         return;
                     }
@@ -789,127 +834,81 @@ namespace PillDispencer.Pages
 
                     hMIViewModel.Weight = Math.Round(weight, 2);
                     hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
-                    decimal expectedWeight100 = 1 * hMIViewModel.ActualWeight;
-                    decimal expectedWeight50 = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
-                    decimal expectedWeight20 = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
-                    decimal expectedWeight10 = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
-                    decimal expectedWeightC1 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
-                    decimal expectedWeight5 = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
-                    decimal expectedWeightC2 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
-                    int setpointSatisfy = 0;
-                    decimal minExcpectedWeight = 0;
-                    decimal maxExcpectedWeight = 0;
+                    
+                   
+                    if(hMIViewModel.IsSetPoint1Passed==false)
+                    {
+                        if(hMIViewModel.SetPoint1<=hMIViewModel.Weight)
+                        {
+                            hMIViewModel.IsSetPoint1Passed = true;
+                            WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
+                            WriteControCardState(control.Yellow.RegisterNo, 1, control.SlaveAddress);
+                            WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
 
-                    if (hMIViewModel.HundChecked)
-                    {
-                        setpointSatisfy = 1;
-                        minExcpectedWeight = expectedWeight100;
-                        maxExcpectedWeight = expectedWeight100;
-                    }
-                    else if (hMIViewModel.FifChecked)
-                    {
-                        setpointSatisfy = 1;
-                        minExcpectedWeight = expectedWeight20;
-                        maxExcpectedWeight = expectedWeight50;
-                    }
-                    else if (hMIViewModel.TweChecked)
-                    {
-                        setpointSatisfy = 1;
-                        minExcpectedWeight = expectedWeight10;
-                        maxExcpectedWeight = expectedWeight20;
-                    }
-                    else if (hMIViewModel.TenChecked)
-                    {
-                        setpointSatisfy = 1;
-                        minExcpectedWeight = expectedWeight10;
-                        maxExcpectedWeight = expectedWeight20;
-                    }
-                    else if (hMIViewModel.CustomSetPointChecked1)
-                    {
-                        setpointSatisfy = 1;
-                        List<decimal> decimals = new List<decimal>() {
-                        expectedWeight100,
-                        expectedWeight50,
-                        expectedWeight20,
-                        expectedWeight10,
-                        expectedWeightC1
-                        };
-
-                        var diffList = decimals.Select(x => new { n = x, diff = Math.Abs(x - expectedWeightC1) });
-                        var result = diffList.Where(x => x.diff == diffList.Select(y => y.diff).Min()).First();
-                        minExcpectedWeight = result.n;
-                        maxExcpectedWeight = expectedWeightC1;
-                    }
-                    else if (hMIViewModel.FivChecked)
-                    {
-                        setpointSatisfy = 2;
-                        minExcpectedWeight = expectedWeightC2;
-                        maxExcpectedWeight = expectedWeight5;
-                    }
-                    else if (hMIViewModel.CustomSetPointChecked2)
-                    {
-                        setpointSatisfy = 2;
-                        minExcpectedWeight = weight;
-                        maxExcpectedWeight = expectedWeightC2;
-                    }
-
-                    switch (setpointSatisfy)
-                    {
-                        case 1:
-                            if (minExcpectedWeight > weight && weight <= maxExcpectedWeight)
+                            _dispathcer.Invoke(new Action(() =>
                             {
+                                red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                red.Background = (Brush)bc.ConvertFromString("#cecece");
+                                red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                TextRed.Content = "OFF";
 
-                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
-                                WriteControCardState(control.Yellow.RegisterNo, 1, control.SlaveAddress);
-                                WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
+                                Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                Green.Background = (Brush)bc.ConvertFromString("#cecece");
+                                Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                TextGreen.Content = "OFF";
 
-                                _dispathcer.Invoke(new Action(() =>
-                                {
-                                    red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                    red.Background = (Brush)bc.ConvertFromString("#cecece");
-                                    red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                yellow.Foreground = Brushes.Yellow;
+                                yellow.Background = Brushes.LightYellow;
+                                yellow.BorderBrush = Brushes.Yellow;
+                                yellow.IsChecked = true;
+                                TextYellow.Content = "ON";
+                                MessageLog.Text = "Weight has pass from set point 1.";
 
-                                    Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                    Green.Background = (Brush)bc.ConvertFromString("#cecece");
-                                    Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                            }));
+                        }
 
-                                    yellow.Foreground = Brushes.Yellow;
-                                    yellow.Background = Brushes.LightYellow;
-                                    yellow.BorderBrush = Brushes.Yellow;
-
-                                }));
-                            }
-                            break;
-                        case 2:
-                            if (minExcpectedWeight > weight && weight <= maxExcpectedWeight)
-                            {
-                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
-                                WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
-                                WriteControCardState(control.Red.RegisterNo, 1, control.SlaveAddress);
-
-                                _dispathcer.Invoke(new Action(() =>
-                                {
-                                    red.Foreground = Brushes.Red;
-                                    red.Background = Brushes.LightGoldenrodYellow;
-                                    red.BorderBrush = Brushes.Red;
-
-                                    Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                    Green.Background = (Brush)bc.ConvertFromString("#cecece");
-                                    Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-
-                                    yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                    yellow.Background = (Brush)bc.ConvertFromString("#cecece");
-                                    yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-
-                                }));
-                                _dispathcer.Invoke(new Action(() =>
-                                {
-                                    MessageLog.Text = "BATCH COMPLETED..";
-                                }));
-                                BatchCompleted();
-                            }
-                            break;
+                        return;
                     }
+
+
+                    if (hMIViewModel.IsSetPoint2Passed == false)
+                    {
+                        if (hMIViewModel.SetPoint2 <= hMIViewModel.Weight)
+                        {
+                            hMIViewModel.IsSetPoint2Passed = true;
+                            WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
+                            WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
+                            WriteControCardState(control.Red.RegisterNo, 1, control.SlaveAddress);
+
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                red.Foreground = Brushes.Red;
+                                red.Background = Brushes.LightGoldenrodYellow;
+                                red.BorderBrush = Brushes.Red;
+                                red.IsChecked=true;
+                                TextRed.Content = "ON";
+
+                                Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                Green.Background = (Brush)bc.ConvertFromString("#cecece");
+                                Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                TextGreen.Content = "OFF";
+
+                                yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                yellow.Background = (Brush)bc.ConvertFromString("#cecece");
+                                yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                TextYellow.Content = "OFF";
+                            }));
+                            
+                        }
+
+                        return;
+                    }
+                    _dispathcer.Invoke(new Action(() =>
+                    {
+                        MessageLog.Text = "BATCH COMPLETED..";
+                    }));
+                    BatchCompleted();
+                    return;
                 }
 
             }
@@ -924,6 +923,8 @@ namespace PillDispencer.Pages
             hMIViewModel.Weight = 0;
             hMIViewModel.WeightPercentage = 0;
             hMIViewModel.IsNotRunning = true;
+            hMIViewModel.IsSetPoint1Passed = false;
+            hMIViewModel.IsSetPoint2Passed = false;
             MessageBox.Show("Batch has been completed.");
         }
         void StartBatch()
@@ -932,6 +933,7 @@ namespace PillDispencer.Pages
             {
                 MessageLog.Text = "Starting new batch..";
             }));
+
             ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
             Connect_control_card(control.PortName, control.BaudRate, control.DataBit, control.StopBit, control.Parity);
         }
