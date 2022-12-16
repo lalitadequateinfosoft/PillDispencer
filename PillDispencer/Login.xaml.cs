@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using PillDispencer.Model;
 
 namespace PillDispencer
 {
@@ -22,16 +23,19 @@ namespace PillDispencer
     public partial class Login : Window
     {
         LoginViewModel loginViewModel;
+        private readonly string sessionId;
         public Login()
         {
-            loginViewModel=new LoginViewModel();
+            loginViewModel = new LoginViewModel();
             InitializeComponent();
             this.DataContext = loginViewModel;
+            sessionId = "SignInSession_" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Day.ToString();
         }
+
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Are you sure?", "you want to exit", System.Windows.MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "you want to exit", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 this.Close();
@@ -42,36 +46,116 @@ namespace PillDispencer
         {
             if (this.DataContext is LoginViewModel model)
             {
-                if (!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.Password) && model.Username== "edward.2022" && model.Password== "Adk@2017")
+                try
                 {
-                    MainWindow main = new MainWindow();
-                    main.Show();
-                    this.Close();
+                    if (!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.Password) && model.Username == "edward.2022" && model.Password == "Adk@2017")
+                    {
+                        string log = "Login with username:" + model.Username + " is successfull.";
+                        LogWriter.LogWrite(log, sessionId);
+                        MainWindow main = new MainWindow();
+                        this.Close();
+                        main.Show();
+                    }
+                    else
+                    {
+                        string log = "Sign in with username:" + model.Username + " failed. invalid/Empty username and password provided";
+                        LogWriter.LogWrite(log, sessionId);
+                        MessageBox.Show("Login failed!,invalid/Empty username and password provided");
+                    }
+                }
+                catch(Exception ex)
+                {
+                    string log = "An error has occured:\r"+ex.StackTrace.ToString()+".";
+                    log = log + "\r\n error description : " + ex.ToString();
+                    LogWriter.LogWrite(log, sessionId);
+                }
 
-                }
-                else
-                {
-                    MessageBox.Show("Login failed!,invalid/Empty username and password provided");
-                }
+                
             }
         }
 
-        private void txtPass_TextChanged(object sender, TextChangedEventArgs e)
+        private void HiddenPass_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (this.DataContext is LoginViewModel model)
+            try
             {
-                //var box=sender as TextBox;
-                //if(string.IsNullOrEmpty(box.Text.ToString()))
-                //{
-                //    model.Password = string.Empty;
-                //    model.HPassword= string.Empty;
-                //    return;
-                //}
-
-                //model.Password= box.Text.ToString();
-                //var text=box.Text.ToString();   
-                //model.HPassword= new string('*', text.Length);
+                if (this.DataContext is LoginViewModel model)
+                {
+                    if (model.IsPasswordHidden == Visibility.Visible)
+                    {
+                        model.Password = ((PasswordBox)sender).Password;
+                        VisiblePass.Text = model.Password;
+                    }
+                }
             }
+            catch(Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
+            
+        }
+
+        private void VisiblePass_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                if (this.DataContext is LoginViewModel model)
+                {
+                    if (model.IsPasswordHidden == Visibility.Collapsed)
+                    {
+                        model.Password = ((TextBox)sender).Text;
+                        HiddenPass.Password = model.Password;
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
+        }
+
+        private void passMode_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (this.DataContext is LoginViewModel model)
+                {
+                    if (model.IsPasswordVisible == Visibility.Visible)
+                    {
+                        string hiddenpass = HiddenPass.Password;
+                        string plainPass = VisiblePass.Text;
+
+                        model.IsPasswordVisible = Visibility.Collapsed;
+                        model.IsPasswordHidden = Visibility.Visible;
+
+                        passMode.Icon = FontAwesome.WPF.FontAwesomeIcon.EyeSlash;
+                        HiddenPass.Focusable = true;
+                        HiddenPass.Focus();
+                    }
+                    else
+                    {
+                        string hiddenpass = HiddenPass.Password;
+                        string plainPass = VisiblePass.Text;
+
+                        model.IsPasswordVisible = Visibility.Visible;
+                        model.IsPasswordHidden = Visibility.Collapsed;
+
+                        passMode.Icon = FontAwesome.WPF.FontAwesomeIcon.Eye;
+                        VisiblePass.Focusable = true;
+                        VisiblePass.Focus();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
+            
         }
     }
 }

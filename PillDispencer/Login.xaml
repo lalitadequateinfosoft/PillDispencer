@@ -119,29 +119,48 @@
                                             CornerRadius="6,12,12,12"
                                             Height="50"
                                             Padding="10">
-                                        <TextBox  
-                                        x:Name="txtPass"
-                                        FontFamily="ms-appx:///Assets/PassDot.ttf#PassDot"
-                                        Text="{Binding Path=Password, Mode=TwoWay}"
-                                            TextChanged="txtPass_TextChanged"
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <PasswordBox
+                                            x:Name="HiddenPass"
+                                            FontSize="20"
+                                            BorderThickness="0"
+                                            Background="#dddddd"
+                                                    Foreground="Black"
+                                            Visibility="{Binding Path=IsPasswordHidden,Mode=TwoWay}"
+                                            PasswordChanged="HiddenPass_PasswordChanged">
+
+                                                </PasswordBox>
+                                                <TextBox  
+                                        x:Name="VisiblePass"
                                         FontSize="20"
-                                            BorderThickness="0">
-                                            <TextBox.Background>
-                                                <ImageBrush
-                                                    ImageSource="Icons/password.png"
-                                                    Stretch="Uniform"
-                                                    AlignmentX="Right">
-                                                    <ImageBrush.Transform>
-                                                        <TransformGroup>
-                                                            <ScaleTransform/>
-                                                            <SkewTransform/>
-                                                            <RotateTransform/>
-                                                            <TranslateTransform X="-3"/>
-                                                        </TransformGroup>
-                                                    </ImageBrush.Transform>
-                                                </ImageBrush>
-                                            </TextBox.Background>
-                                        </TextBox>
+                                        BorderThickness="0"
+                                        Foreground="Black"
+                                        Visibility="{Binding Path=IsPasswordVisible,Mode=TwoWay}"
+                                            TextChanged="VisiblePass_TextChanged"
+                                                Background="#dddddd"
+                                            />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center">
+                                                <fa:FontAwesome x:Name="passMode"
+                                                                Icon="EyeSlash"
+                                                                FontSize="22"
+                                                                FontWeight="Bold"
+                                                                Foreground="#686972"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Margin="5,0,5,0"
+                                                                MouseDown="passMode_MouseDown"/>
+                                            </StackPanel>
+
+
+                                        </Grid>
                                     </Border>
 
                                 </StackPanel>

@@ -1,8 +1,5 @@
-﻿using ControlzEx.Standard;
-using onvif.services;
+﻿
 using Ozeki;
-using Ozeki.Media;
-using Ozeki.VoIP;
 using PillDispencer.Model;
 using PillDispencer.PopUp;
 using PillDispencer.Services;
@@ -11,24 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using utils;
-using static AForge.Imaging.Filters.HitAndMiss;
 
 namespace PillDispencer.Pages
 {
@@ -51,7 +36,7 @@ namespace PillDispencer.Pages
         HMIViewModel hMIViewModel;
         private DeviceInfo deviceInfo;
         System.Timers.Timer ExecutionTimer = new System.Timers.Timer();
-        
+
 
         #region function Variable
         const int REC_BUF_SIZE = 10000;
@@ -64,6 +49,8 @@ namespace PillDispencer.Pages
         private int readIndex = 0;
         #endregion
 
+        private readonly string sessionId;
+
         public HMI()
         {
             bc = new BrushConverter();
@@ -71,6 +58,7 @@ namespace PillDispencer.Pages
             InitializeComponent();
             this.DataContext = hMIViewModel;
             _dispathcer = Dispatcher.CurrentDispatcher;
+            sessionId = "HMISession_" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Day.ToString();
             weighing = new CommunicationDevices
             {
                 IsConfigured = false
@@ -154,47 +142,66 @@ namespace PillDispencer.Pages
         #region Run function
         private void Run_Click(object sender, RoutedEventArgs e)
         {
-            if (this.DataContext is HMIViewModel model)
+            try
             {
-                if (model.ActualWeight == 0 || model.Zero == 0 || model.Span == 0)
+                if (this.DataContext is HMIViewModel model)
                 {
-                    MessageBox.Show("Please set up weight, tare weight and other configurations.");
+                    if (model.ActualWeight == 0 || model.Zero == 0 || model.Span == 0)
+                    {
+                        MessageBox.Show("Please set up weight, tare weight and other configurations.");
+                        return;
+                    }
+                }
+
+                if (!weighing.IsConfigured || !control.IsConfigured)
+                {
+                    MessageBox.Show("Please configure Devices.");
+                    LoadSytem();
+                }
+                if (this.DataContext is HMIViewModel hmodel)
+                {
+                    hmodel.IsNotRunning = false;
+                }
+                if (!weighing.IsConfigured || !control.IsConfigured)
+                {
+                    MessageBox.Show("You have not configured devices.");
                     return;
                 }
+                MessageBox.Show("Starting process..");
+                ExecuteLogic();
+            }
+            catch (Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
             }
 
-            if (!weighing.IsConfigured || !control.IsConfigured)
-            {
-                MessageBox.Show("Please configure Devices.");
-                LoadSytem();
-            }
-            if (this.DataContext is HMIViewModel hmodel)
-            {
-                hmodel.IsNotRunning = false;
-            }
-            if (!weighing.IsConfigured || !control.IsConfigured)
-            {
-                MessageBox.Show("You have not configured devices.");
-                return;
-            }
-            MessageBox.Show("Starting process..");
-            ExecuteLogic();
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
-            weighing.IsTurnedOn = false;
-            control.IsTurnedOn = false;
-
-            StopPortCommunication((int)Model.Module_Device_Type.UART);
-            StopPortCommunication((int)Model.Module_Device_Type.ModBus);
-            if (this.DataContext is HMIViewModel model)
+            try
             {
-                model.IsNotRunning = true;
-                model.ActualWeight = 0;
-                model.Weight = 0;
-                model.WeightPercentage = 0;
-                model.TareWeight = 0;
+                weighing.IsTurnedOn = false;
+                control.IsTurnedOn = false;
+
+                StopPortCommunication((int)Model.Module_Device_Type.UART);
+                StopPortCommunication((int)Model.Module_Device_Type.ModBus);
+                if (this.DataContext is HMIViewModel model)
+                {
+                    model.IsNotRunning = true;
+                    model.ActualWeight = 0;
+                    model.Weight = 0;
+                    model.WeightPercentage = 0;
+                    model.TareWeight = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
             }
         }
 
@@ -324,26 +331,29 @@ namespace PillDispencer.Pages
 
         private void StopPortCommunication(int device)
         {
-            if (weighing.SerialDevice.IsOpen && device == (int)Model.Module_Device_Type.UART)
+            if (weighing.SerialDevice != null && device == (int)Model.Module_Device_Type.UART)
             {
-
-                weighing.SerialDevice.DtrEnable = false;
-                weighing.SerialDevice.RtsEnable = false;
-
-                weighing.SerialDevice.DataReceived -= WeightDevice_DataReceived;
-                weighing.SerialDevice.DiscardInBuffer();
-                weighing.SerialDevice.DiscardOutBuffer();
-                weighing.SerialDevice.Close();
+                if (weighing.SerialDevice.IsOpen)
+                {
+                    weighing.SerialDevice.DtrEnable = false;
+                    weighing.SerialDevice.RtsEnable = false;
+                    weighing.SerialDevice.DataReceived -= WeightDevice_DataReceived;
+                    weighing.SerialDevice.DiscardInBuffer();
+                    weighing.SerialDevice.DiscardOutBuffer();
+                    weighing.SerialDevice.Close();
+                }
             }
-            else if (control.SerialDevice.IsOpen && device == (int)Model.Module_Device_Type.ModBus)
+            else if (control.SerialDevice != null && device == (int)Model.Module_Device_Type.ModBus)
             {
-                control.SerialDevice.DtrEnable = false;
-                control.SerialDevice.RtsEnable = false;
-
-                control.SerialDevice.DataReceived -= ControlDevice_DataReceived;
-                control.SerialDevice.DiscardInBuffer();
-                control.SerialDevice.DiscardOutBuffer();
-                control.SerialDevice.Close();
+                if (control.SerialDevice.IsOpen)
+                {
+                    control.SerialDevice.DtrEnable = false;
+                    control.SerialDevice.RtsEnable = false;
+                    control.SerialDevice.DataReceived -= ControlDevice_DataReceived;
+                    control.SerialDevice.DiscardInBuffer();
+                    control.SerialDevice.DiscardOutBuffer();
+                    control.SerialDevice.Close();
+                }
             }
 
         }
@@ -373,9 +383,11 @@ namespace PillDispencer.Pages
                     weighing.IsTurnedOn = true;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
             }
         }
 
@@ -407,7 +419,9 @@ namespace PillDispencer.Pages
             }
             catch (Exception ex)
             {
-
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
             }
         }
 
@@ -425,16 +439,26 @@ namespace PillDispencer.Pages
                 case 0:
                     break;
                 case 1:
-                    int i = 0;
-                    weighing.RecIdx = 0;
-                    weighing.RecState = 1;
-                    recBuf = new byte[weighing.SerialDevice.BytesToRead];
-                    weighing.SerialDevice.Read(recBuf, 0, recBuf.Length);
-                    weighing.ReceiveBufferQueue = new Queue<byte[]>();
-                    weighing.ReceiveBufferQueue.Enqueue(recBuf);
-                    weighing.LastResponseReceived = System.DateTime.Now;
-                    weighing.IsComplete = true;
-                    recBuf = new byte[REC_BUF_SIZE];
+                    try
+                    {
+                        int i = 0;
+                        weighing.RecIdx = 0;
+                        weighing.RecState = 1;
+                        recBuf = new byte[weighing.SerialDevice.BytesToRead];
+                        weighing.SerialDevice.Read(recBuf, 0, recBuf.Length);
+                        weighing.ReceiveBufferQueue = new Queue<byte[]>();
+                        weighing.ReceiveBufferQueue.Enqueue(recBuf);
+                        weighing.LastResponseReceived = System.DateTime.Now;
+                        weighing.IsComplete = true;
+                        recBuf = new byte[REC_BUF_SIZE];
+                    }
+                    catch (Exception ex)
+                    {
+                        string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                        log = log + "\r\n error description : " + ex.ToString();
+                        LogWriter.LogWrite(log, sessionId);
+                    }
+
                     break;
             }
 
@@ -455,38 +479,44 @@ namespace PillDispencer.Pages
                 case 0:
                     break;
                 case 1:
-
-
-                    int i = 0;
-                    control.RecIdx = 0;
-                    control.RecState = 2;
-
-
-                    while (control.SerialDevice.BytesToRead > 0)
+                    try
                     {
-                        byte[] rec = new byte[1];
-                        control.RecIdx += control.SerialDevice.Read(rec, 0, 1);
-                        recBuf[i] = rec[0];
-                        i++;
-                    }
+                        int i = 0;
+                        control.RecIdx = 0;
+                        control.RecState = 2;
 
-                    if (control.RecIdx > 3)
-                    {
-                        TotalReceiveSize = (uint)recBuf[2] + 5;
-                    }
-                    if (TotalReceiveSize > control.RecIdx)
-                    {
-                        control.IsComplete = false;
-                    }
-                    else
-                    {
-                        control.IsComplete = true;
-                        control.ReceiveBufferQueue = new Queue<byte[]>();
-                        control.ReceiveBufferQueue.Enqueue(recBuf);
-                        recBuf = new byte[REC_BUF_SIZE];
-                    }
-                    control.LastResponseReceived = System.DateTime.Now;
 
+                        while (control.SerialDevice.BytesToRead > 0)
+                        {
+                            byte[] rec = new byte[1];
+                            control.RecIdx += control.SerialDevice.Read(rec, 0, 1);
+                            recBuf[i] = rec[0];
+                            i++;
+                        }
+
+                        if (control.RecIdx > 3)
+                        {
+                            TotalReceiveSize = (uint)recBuf[2] + 5;
+                        }
+                        if (TotalReceiveSize > control.RecIdx)
+                        {
+                            control.IsComplete = false;
+                        }
+                        else
+                        {
+                            control.IsComplete = true;
+                            control.ReceiveBufferQueue = new Queue<byte[]>();
+                            control.ReceiveBufferQueue.Enqueue(recBuf);
+                            recBuf = new byte[REC_BUF_SIZE];
+                        }
+                        control.LastResponseReceived = System.DateTime.Now;
+                    }
+                    catch (Exception ex)
+                    {
+                        string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                        log = log + "\r\n error description : " + ex.ToString();
+                        LogWriter.LogWrite(log, sessionId);
+                    }
                     break;
             }
 
@@ -495,91 +525,113 @@ namespace PillDispencer.Pages
 
         void ReadControlCardResponse(RecData _recData)
         {
-            if (_recData.MbTgm != null)
+            try
             {
-                if (_recData.MbTgm.Length > 0 && _recData.MbTgm.Length > readIndex)
+                if (_recData.MbTgm != null)
                 {
-                    //To Read Function Code response.
-                    if (_recData.MbTgm[1] == (int)COM_Code.three)
+                    if (_recData.MbTgm.Length > 0 && _recData.MbTgm.Length > readIndex)
                     {
+                        //To Read Function Code response.
+                        if (_recData.MbTgm[1] == (int)COM_Code.three)
+                        {
 
-                        int _i0 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 3);
-                        int _i1 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 5);
-                        int _i2 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 7);
-                        int _i3 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 9);
-                        int _i4 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 11);
-                        int _i5 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 13);
-                        int _i6 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 15);
-                        int _i7 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 17);
-                        int _i8 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 19);
-                        int _i9 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 21);
-                        int _i10 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 23);
-                        int _i11 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 25);
-                        int _i12 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 27);
-                        int _i13 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 29);
-                        int _i14 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 31);
-                        int _i15 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 33);
-                        int _i16 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 35);
-                        int _i17 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 37);
-                        int _i18 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 39);
-                        int _i19 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 41);
-                        int _i20 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 43);
-                        int _i21 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 45);
-                        int _i22 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 47);
-                        int _i23 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 49);
-                        int _i24 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 51);
-                        int _i25 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 53);
-                        int _i26 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 55);
-                        int _i27 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 57);
-                        int _i28 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 59);
-                        int _i29 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 61);
+                            int _i0 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 3);
+                            int _i1 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 5);
+                            int _i2 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 7);
+                            int _i3 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 9);
+                            int _i4 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 11);
+                            int _i5 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 13);
+                            int _i6 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 15);
+                            int _i7 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 17);
+                            int _i8 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 19);
+                            int _i9 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 21);
+                            int _i10 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 23);
+                            int _i11 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 25);
+                            int _i12 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 27);
+                            int _i13 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 29);
+                            int _i14 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 31);
+                            int _i15 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 33);
+                            int _i16 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 35);
+                            int _i17 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 37);
+                            int _i18 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 39);
+                            int _i19 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 41);
+                            int _i20 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 43);
+                            int _i21 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 45);
+                            int _i22 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 47);
+                            int _i23 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 49);
+                            int _i24 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 51);
+                            int _i25 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 53);
+                            int _i26 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 55);
+                            int _i27 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 57);
+                            int _i28 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 59);
+                            int _i29 = ByteArrayConvert.ToUInt16(Common.MbTgmBytes, 61);
 
-                        // write logic here..
+                            // write logic here..
 
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
+
         }
 
         private void WriteControCardState(int reg, int val, int slave)
         {
+            try
+            {
+                control.RecState = 1;
+                RecData _recData = new RecData();
+                _recData.SessionId = Common.GetSessionNewId;
+                _recData.Ch = 0;
+                _recData.Indx = 0;
+                _recData.Reg = 0;
+                _recData.NoOfVal = 0;
+                _recData.Status = PortDataStatus.Requested;
+                control.CurrentRequest = _recData;
+                control.IsComplete = false;
 
-            control.RecState = 1;
-            RecData _recData = new RecData();
-            _recData.SessionId = Common.GetSessionNewId;
-            _recData.Ch = 0;
-            _recData.Indx = 0;
-            _recData.Reg = 0;
-            _recData.NoOfVal = 0;
-            _recData.Status = PortDataStatus.Requested;
-            control.CurrentRequest = _recData;
-            control.IsComplete = false;
-
-            MODBUSComnn obj = new MODBUSComnn();
-            int[] _val = new int[2] { 0, val };
-            obj.SetMultiSendorValueFM16(slave, 0, control.SerialDevice, reg + 1, 1, "ControlCard", 1, 0, Model.DeviceType.ControlCard, _val, false);   // GetSoftwareVersion(Common.Address, Common.Parity, sp, _ValueType);
-
-
+                MODBUSComnn obj = new MODBUSComnn();
+                int[] _val = new int[2] { 0, val };
+                obj.SetMultiSendorValueFM16(slave, 0, control.SerialDevice, reg + 1, 1, "ControlCard", 1, 0, Model.DeviceType.ControlCard, _val, false);   // GetSoftwareVersion(Common.Address, Common.Parity, sp, _ValueType);
+            }
+            catch (Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
         }
 
         private void ReadAllControCardInputOutput()
         {
+            try
+            {
+                control.RecState = 1;
+                RecData _recData = new RecData();
+                _recData.SessionId = Common.GetSessionNewId;
+                _recData.Ch = 0;
+                _recData.Indx = 0;
+                _recData.Reg = 0;
+                _recData.NoOfVal = 0;
+                _recData.Status = PortDataStatus.Requested;
+                control.CurrentRequest = _recData;
+                control.IsComplete = false;
 
-            control.RecState = 1;
-            RecData _recData = new RecData();
-            _recData.SessionId = Common.GetSessionNewId;
-            _recData.Ch = 0;
-            _recData.Indx = 0;
-            _recData.Reg = 0;
-            _recData.NoOfVal = 0;
-            _recData.Status = PortDataStatus.Requested;
-            control.CurrentRequest = _recData;
-            control.IsComplete = false;
-
-            MODBUSComnn obj = new MODBUSComnn();
-            obj.GetMultiSendorValueFM3(control.SlaveAddress, 0, control.SerialDevice, 0, 30, "ControlCard", 1, 0, Model.DeviceType.ControlCard);
-
-
+                MODBUSComnn obj = new MODBUSComnn();
+                obj.GetMultiSendorValueFM3(control.SlaveAddress, 0, control.SerialDevice, 0, 30, "ControlCard", 1, 0, Model.DeviceType.ControlCard);
+            }
+            catch(Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
         }
 
         private bool CheckTgmError(RecData _recData, Byte[] _payLoad, Byte[] _MBTgm, int _MbLength)
@@ -633,216 +685,141 @@ namespace PillDispencer.Pages
 
         private void UartDataReader()
         {
-
-            if (weighing.RecState > 0 && weighing.IsComplete)
+            try
             {
-                weighing.IsComplete = false;
-
-
-                //recState = 1;
-                while (weighing.ReceiveBufferQueue.Count > 0)
+                if (weighing.RecState > 0 && weighing.IsComplete)
                 {
-                    recBufParse = weighing.ReceiveBufferQueue.Dequeue();
+                    weighing.IsComplete = false;
 
-                    weighing.RecState = 1;
-                    RecData _recData = weighing.CurrentRequest;
 
-                    if (_recData != null)
+                    //recState = 1;
+                    while (weighing.ReceiveBufferQueue.Count > 0)
                     {
+                        recBufParse = weighing.ReceiveBufferQueue.Dequeue();
 
-                        Common.GoodTmgm++;
+                        weighing.RecState = 1;
+                        RecData _recData = weighing.CurrentRequest;
 
-                        weighing.CurrentRequest.MbTgm = recBufParse;
-                        weighing.CurrentRequest.Status = PortDataStatus.Received;
-                        CompareWeightModuleResponse(weighing.CurrentRequest);
-                        return;
+                        if (_recData != null)
+                        {
+
+                            Common.GoodTmgm++;
+
+                            weighing.CurrentRequest.MbTgm = recBufParse;
+                            weighing.CurrentRequest.Status = PortDataStatus.Received;
+                            CompareWeightModuleResponse(weighing.CurrentRequest);
+                            return;
+                        }
+
                     }
 
                 }
-
             }
-
+            catch(Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
         }
 
         void CompareWeightModuleResponse(RecData _recData)
         {
-
-            if (_recData.MbTgm.Length > 0 && _recData.MbTgm.Length > readIndex)
+            try
             {
-                byte[] bytestToRead = _recData.MbTgm.Skip(readIndex).ToArray();
-                string str = Encoding.Default.GetString(bytestToRead).Replace(System.Environment.NewLine, string.Empty);
-
-                string actualdata = Regex.Replace(str, @"[^\t\r\n -~]", "_").RemoveWhitespace().Trim();
-                string[] data = actualdata.Split('_');
-
-                var lastitem = data[data.Length - 1];
-                var outP = lastitem.ToLower().ToString();
-
-                if (!string.IsNullOrEmpty(outP))
+                if (_recData.MbTgm.Length > 0 && _recData.MbTgm.Length > readIndex)
                 {
-                    Regex re = new Regex(@"\d+");
-                    Match m = re.Match(outP);
-                    decimal balance = Convert.ToDecimal(m.Value);
+                    byte[] bytestToRead = _recData.MbTgm.Skip(readIndex).ToArray();
+                    string str = Encoding.Default.GetString(bytestToRead).Replace(System.Environment.NewLine, string.Empty);
 
-                    _dispathcer.Invoke(new Action(() =>
-                    {
-                        MessageLog.Text = "Reading weight..";
+                    string actualdata = Regex.Replace(str, @"[^\t\r\n -~]", "_").RemoveWhitespace().Trim();
+                    string[] data = actualdata.Split('_');
 
-                    }));
-                    if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning == true)
-                    {
-                        hMIViewModel.Zero = balance;
-                        _dispathcer.Invoke(new Action(() =>
-                        {
-                            MessageLog.Text = "Zero value has been set, Now put some weight on the scale and enter the actual weight in span to set calibration factor.";
-                        }));
-                        return;
-                    }
+                    var lastitem = data[data.Length - 1];
+                    var outP = lastitem.ToLower().ToString();
 
-                    if (hMIViewModel.Span <= 0)
+                    if (!string.IsNullOrEmpty(outP))
                     {
-                        _dispathcer.Invoke(new Action(() =>
-                        {
-                            MessageLog.Text = "Please put some weight on the scale and set span value for calibrations calculation...";
-                        }));
-                        return;
-                    }
-
-                    if (hMIViewModel.CalculateSpan == true && hMIViewModel.IsNotRunning == true && hMIViewModel.Span > 0)
-                    {
-                        decimal diff = balance - hMIViewModel.Zero;
-                        decimal divident = diff / hMIViewModel.Span;
-                        hMIViewModel.Factor = divident;
-                        hMIViewModel.CalculateSpan = false;
-                        _dispathcer.Invoke(new Action(() =>
-                        {
-                            MessageLog.Text = "Calibration completed, Please set tare weight if needed...";
-                        }));
-                        //hMIViewModel.Weight = 0;
-                        return;
-                    }
-                    if (hMIViewModel.Factor <= 0)
-                    {
-                        _dispathcer.Invoke(new Action(() =>
-                        {
-                            MessageLog.Text = "calibrations is zero, Please enter some weight to calculate calibration.";
-                        }));
-                        return;
-                    }
-
-                    decimal dweight = Convert.ToDecimal(hMIViewModel.Zero * 20) / 100;
-                    decimal plus = hMIViewModel.Zero + dweight;
-                    decimal minus = hMIViewModel.Zero - dweight;
-                    if ((balance <= plus || balance >= minus) && hMIViewModel.AutoZeroEnabled == true && hMIViewModel.Factor > 0)
-                    {
-                        hMIViewModel.Weight = 0;
-                        hMIViewModel.ActualWeight = 0;
-                        hMIViewModel.WeightPercentage = 0;
-                        return;
-                    }
-
-                    decimal weight = balance - hMIViewModel.Zero;
-                    weight = weight / hMIViewModel.Factor;
-                    weight = weight - hMIViewModel.TareWeight;
-                    if (hMIViewModel.IsNotRunning == true && hMIViewModel.ActualWeight <= 0)
-                    {
-                        hMIViewModel.Weight = Math.Round(weight, 2);
+                        Regex re = new Regex(@"\d+");
+                        Match m = re.Match(outP);
+                        decimal balance = Convert.ToDecimal(m.Value);
 
                         _dispathcer.Invoke(new Action(() =>
                         {
-                            MessageLog.Text = "Please Set 100% weight.";
-                        }));
-                        return;
-                    }
-                    if (hMIViewModel.ActualWeight > 0 && hMIViewModel.IsNotRunning == true)
-                    {
-                        hMIViewModel.Weight = Math.Round(weight, 2);
-                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
-                        WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
-                        WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
-                        WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
-
-                        _dispathcer.Invoke(new Action(() =>
-                        {
-                            red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                            red.Background = (Brush)bc.ConvertFromString("#cecece");
-                            red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-                            TextRed.Content = "OFF";
-
-                            Green.Foreground = Brushes.Green;
-                            Green.Background = Brushes.LightGreen;
-                            Green.BorderBrush = Brushes.Green;
-                            Green.IsChecked = true;
-                            TextGreen.Content = "ON";
-
-                            yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                            yellow.Background = (Brush)bc.ConvertFromString("#cecece");
-                            yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-                            TextYellow.Content = "OFF";
-
-                            MessageLog.Text = "Please start the program by clicking run.";
+                            MessageLog.Text = "Reading weight..";
 
                         }));
-
-                        decimal expectedWeight100 = 1 * hMIViewModel.ActualWeight;
-                        decimal expectedWeight50 = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeight20 = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeight10 = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeightC1 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeight5 = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeightC2 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
-
-                        if (hMIViewModel.HundChecked)
+                        if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning == true)
                         {
-                            hMIViewModel.SetPoint1 = expectedWeight100;
-                        }
-                        else if (hMIViewModel.FifChecked)
-                        {
-                            hMIViewModel.SetPoint1 = expectedWeight50;
-                        }
-                        else if (hMIViewModel.TweChecked)
-                        {
-                            hMIViewModel.SetPoint1 = expectedWeight20;
-                        }
-                        else if (hMIViewModel.TenChecked)
-                        {
-                            hMIViewModel.SetPoint1 = expectedWeight10;
-                        }
-                        else if (hMIViewModel.CustomSetPointChecked1)
-                        {
-                            hMIViewModel.SetPoint1 = expectedWeightC1;
+                            hMIViewModel.Zero = balance;
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                MessageLog.Text = "Zero value has been set, Now put some weight on the scale and enter the actual weight in span to set calibration factor.";
+                            }));
+                            return;
                         }
 
-                        if (hMIViewModel.FivChecked)
+                        if (hMIViewModel.Span <= 0)
                         {
-                            hMIViewModel.SetPoint2 = expectedWeight5;
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                MessageLog.Text = "Please put some weight on the scale and set span value for calibrations calculation...";
+                            }));
+                            return;
                         }
-                        else if (hMIViewModel.CustomSetPointChecked2)
+
+                        if (hMIViewModel.CalculateSpan == true && hMIViewModel.IsNotRunning == true && hMIViewModel.Span > 0)
                         {
-                            hMIViewModel.SetPoint2 = expectedWeightC2;
+                            decimal diff = balance - hMIViewModel.Zero;
+                            decimal divident = diff / hMIViewModel.Span;
+                            hMIViewModel.Factor = divident;
+                            hMIViewModel.CalculateSpan = false;
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                MessageLog.Text = "Calibration completed, Please set tare weight if needed...";
+                            }));
+                            //hMIViewModel.Weight = 0;
+                            return;
+                        }
+                        if (hMIViewModel.Factor <= 0)
+                        {
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                MessageLog.Text = "calibrations is zero, Please enter some weight to calculate calibration.";
+                            }));
+                            return;
                         }
 
-                        return;
-                    }
-
-
-
-                    _dispathcer.Invoke(new Action(() =>
-                    {
-                        MessageLog.Text = "Processing started..";
-                    }));
-
-                    hMIViewModel.Weight = Math.Round(weight, 2);
-                    hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
-                    
-                   
-                    if(hMIViewModel.IsSetPoint1Passed==false)
-                    {
-                        if(hMIViewModel.SetPoint1<=hMIViewModel.Weight)
+                        decimal dweight = Convert.ToDecimal(hMIViewModel.Zero * 20) / 100;
+                        decimal plus = hMIViewModel.Zero + dweight;
+                        decimal minus = hMIViewModel.Zero - dweight;
+                        if ((balance <= plus || balance >= minus) && hMIViewModel.AutoZeroEnabled == true && hMIViewModel.Factor > 0)
                         {
-                            hMIViewModel.IsSetPoint1Passed = true;
-                            WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
-                            WriteControCardState(control.Yellow.RegisterNo, 1, control.SlaveAddress);
+                            hMIViewModel.Weight = 0;
+                            hMIViewModel.ActualWeight = 0;
+                            hMIViewModel.WeightPercentage = 0;
+                            return;
+                        }
+
+                        decimal weight = balance - hMIViewModel.Zero;
+                        weight = weight / hMIViewModel.Factor;
+                        weight = weight - hMIViewModel.TareWeight;
+                        if (hMIViewModel.IsNotRunning == true && hMIViewModel.ActualWeight <= 0)
+                        {
+                            hMIViewModel.Weight = Math.Round(weight, 2);
+
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                MessageLog.Text = "Please Set 100% weight.";
+                            }));
+                            return;
+                        }
+                        if (hMIViewModel.ActualWeight > 0 && hMIViewModel.IsNotRunning == true)
+                        {
+                            hMIViewModel.Weight = Math.Round(weight, 2);
+                            hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
+                            WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
+                            WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
                             WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
 
                             _dispathcer.Invoke(new Action(() =>
@@ -852,80 +829,185 @@ namespace PillDispencer.Pages
                                 red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
                                 TextRed.Content = "OFF";
 
-                                Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                Green.Background = (Brush)bc.ConvertFromString("#cecece");
-                                Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-                                TextGreen.Content = "OFF";
-
-                                yellow.Foreground = Brushes.Yellow;
-                                yellow.Background = Brushes.LightYellow;
-                                yellow.BorderBrush = Brushes.Yellow;
-                                yellow.IsChecked = true;
-                                TextYellow.Content = "ON";
-                                MessageLog.Text = "Weight has pass from set point 1.";
-
-                            }));
-                        }
-
-                        return;
-                    }
-
-
-                    if (hMIViewModel.IsSetPoint2Passed == false)
-                    {
-                        if (hMIViewModel.SetPoint2 <= hMIViewModel.Weight)
-                        {
-                            hMIViewModel.IsSetPoint2Passed = true;
-                            WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
-                            WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
-                            WriteControCardState(control.Red.RegisterNo, 1, control.SlaveAddress);
-
-                            _dispathcer.Invoke(new Action(() =>
-                            {
-                                red.Foreground = Brushes.Red;
-                                red.Background = Brushes.LightGoldenrodYellow;
-                                red.BorderBrush = Brushes.Red;
-                                red.IsChecked=true;
-                                TextRed.Content = "ON";
-
-                                Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                Green.Background = (Brush)bc.ConvertFromString("#cecece");
-                                Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-                                TextGreen.Content = "OFF";
+                                Green.Foreground = Brushes.Green;
+                                Green.Background = Brushes.LightGreen;
+                                Green.BorderBrush = Brushes.Green;
+                                Green.IsChecked = true;
+                                TextGreen.Content = "ON";
 
                                 yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
                                 yellow.Background = (Brush)bc.ConvertFromString("#cecece");
                                 yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
                                 TextYellow.Content = "OFF";
+
+                                MessageLog.Text = "Please start the program by clicking run.";
+
                             }));
-                            
+
+                            decimal expectedWeight100 = 1 * hMIViewModel.ActualWeight;
+                            decimal expectedWeight50 = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
+                            decimal expectedWeight20 = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
+                            decimal expectedWeight10 = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
+                            decimal expectedWeightC1 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
+                            decimal expectedWeight5 = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
+                            decimal expectedWeightC2 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
+
+                            if (hMIViewModel.HundChecked)
+                            {
+                                hMIViewModel.SetPoint1 = expectedWeight100;
+                            }
+                            else if (hMIViewModel.FifChecked)
+                            {
+                                hMIViewModel.SetPoint1 = expectedWeight50;
+                            }
+                            else if (hMIViewModel.TweChecked)
+                            {
+                                hMIViewModel.SetPoint1 = expectedWeight20;
+                            }
+                            else if (hMIViewModel.TenChecked)
+                            {
+                                hMIViewModel.SetPoint1 = expectedWeight10;
+                            }
+                            else if (hMIViewModel.CustomSetPointChecked1)
+                            {
+                                hMIViewModel.SetPoint1 = expectedWeightC1;
+                            }
+
+                            if (hMIViewModel.FivChecked)
+                            {
+                                hMIViewModel.SetPoint2 = expectedWeight5;
+                            }
+                            else if (hMIViewModel.CustomSetPointChecked2)
+                            {
+                                hMIViewModel.SetPoint2 = expectedWeightC2;
+                            }
+
+                            return;
                         }
 
+
+
+                        _dispathcer.Invoke(new Action(() =>
+                        {
+                            MessageLog.Text = "Processing started..";
+                        }));
+
+                        hMIViewModel.Weight = Math.Round(weight, 2);
+                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
+
+
+                        if (hMIViewModel.IsSetPoint1Passed == false)
+                        {
+                            if (hMIViewModel.SetPoint1 <= hMIViewModel.Weight)
+                            {
+                                hMIViewModel.IsSetPoint1Passed = true;
+                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
+                                WriteControCardState(control.Yellow.RegisterNo, 1, control.SlaveAddress);
+                                WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
+
+                                _dispathcer.Invoke(new Action(() =>
+                                {
+                                    red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                    red.Background = (Brush)bc.ConvertFromString("#cecece");
+                                    red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                    TextRed.Content = "OFF";
+
+                                    Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                    Green.Background = (Brush)bc.ConvertFromString("#cecece");
+                                    Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                    TextGreen.Content = "OFF";
+
+                                    yellow.Foreground = Brushes.Yellow;
+                                    yellow.Background = Brushes.LightYellow;
+                                    yellow.BorderBrush = Brushes.Yellow;
+                                    yellow.IsChecked = true;
+                                    TextYellow.Content = "ON";
+                                    MessageLog.Text = "Weight has pass from set point 1.";
+
+                                }));
+                            }
+
+                            return;
+                        }
+
+
+                        if (hMIViewModel.IsSetPoint2Passed == false)
+                        {
+                            if (hMIViewModel.SetPoint2 <= hMIViewModel.Weight)
+                            {
+                                hMIViewModel.IsSetPoint2Passed = true;
+                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
+                                WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
+                                WriteControCardState(control.Red.RegisterNo, 1, control.SlaveAddress);
+
+                                _dispathcer.Invoke(new Action(() =>
+                                {
+                                    red.Foreground = Brushes.Red;
+                                    red.Background = Brushes.LightGoldenrodYellow;
+                                    red.BorderBrush = Brushes.Red;
+                                    red.IsChecked = true;
+                                    TextRed.Content = "ON";
+
+                                    Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                    Green.Background = (Brush)bc.ConvertFromString("#cecece");
+                                    Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                    TextGreen.Content = "OFF";
+
+                                    yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                    yellow.Background = (Brush)bc.ConvertFromString("#cecece");
+                                    yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                    TextYellow.Content = "OFF";
+                                }));
+
+                            }
+
+                            return;
+                        }
+                        _dispathcer.Invoke(new Action(() =>
+                        {
+                            MessageLog.Text = "BATCH COMPLETED..";
+                        }));
+                        BatchCompleted();
                         return;
                     }
-                    _dispathcer.Invoke(new Action(() =>
-                    {
-                        MessageLog.Text = "BATCH COMPLETED..";
-                    }));
-                    BatchCompleted();
-                    return;
-                }
 
+                }
             }
+            catch(Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
+
+            
         }
 
         void BatchCompleted()
         {
-            //StopPortCommunication((int)Model.Module_Device_Type.UART);
-            StopPortCommunication((int)Model.Module_Device_Type.ModBus);
-            weighing.IsTurnedOn = false;
-            control.IsTurnedOn = false;
-            hMIViewModel.Weight = 0;
-            hMIViewModel.WeightPercentage = 0;
-            hMIViewModel.IsNotRunning = true;
-            hMIViewModel.IsSetPoint1Passed = false;
-            hMIViewModel.IsSetPoint2Passed = false;
-            MessageBox.Show("Batch has been completed.");
+            try
+            {
+                //StopPortCommunication((int)Model.Module_Device_Type.UART);
+                StopPortCommunication((int)Model.Module_Device_Type.ModBus);
+                weighing.IsTurnedOn = false;
+                control.IsTurnedOn = false;
+                hMIViewModel.Weight = 0;
+                hMIViewModel.WeightPercentage = 0;
+                hMIViewModel.IsNotRunning = true;
+                hMIViewModel.IsSetPoint1Passed = false;
+                hMIViewModel.IsSetPoint2Passed = false;
+                _dispathcer.Invoke(new Action(() =>
+                {
+                    MessageLog.Text = "Batch has been completed.";
+                }));
+            }
+            catch(Exception ex)
+            {
+                string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
+                log = log + "\r\n error description : " + ex.ToString();
+                LogWriter.LogWrite(log, sessionId);
+            }
+            
         }
         void StartBatch()
         {

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PillDispencer.ViewModel
@@ -16,7 +17,8 @@ namespace PillDispencer.ViewModel
 
         public LoginViewModel()
         {
-
+            IsPasswordVisible=Visibility.Collapsed;
+            IsPasswordHidden=Visibility.Visible;
         }
         private string _username;
 
@@ -42,15 +44,27 @@ namespace PillDispencer.ViewModel
             }
         }
 
-        private string _hpassword;
+        private Visibility _isPasswordVisible;
 
-        public string HPassword
+        public Visibility IsPasswordVisible
         {
-            get => _hpassword;
+            get => _isPasswordVisible;
             set
             {
-                _hpassword = value;
-                OnPropertyChanged(nameof(HPassword));
+                _isPasswordVisible = value;
+                OnPropertyChanged(nameof(IsPasswordVisible));
+            }
+        }
+
+        private Visibility _isPasswordHidden;
+
+        public Visibility IsPasswordHidden
+        {
+            get => _isPasswordHidden;
+            set
+            {
+                _isPasswordHidden = value;
+                OnPropertyChanged(nameof(IsPasswordHidden));
             }
         }
 

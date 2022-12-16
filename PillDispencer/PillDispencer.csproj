@@ -117,6 +117,7 @@
     <Compile Include="Model\ConvertMisc.cs" />
     <Compile Include="Model\Crc.cs" />
     <Compile Include="Model\DeviceInfo.cs" />
+    <Compile Include="Model\LogWriter.cs" />
     <Compile Include="Model\MachinesModel.cs" />
     <Compile Include="Model\MODBUSComnn.cs" />
     <Compile Include="Model\RegisterConfiguration.cs" />
