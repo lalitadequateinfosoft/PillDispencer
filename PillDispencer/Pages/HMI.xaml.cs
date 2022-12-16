@@ -84,7 +84,7 @@ namespace PillDispencer.Pages
         {
             if (this.DataContext is HMIViewModel model)
             {
-                model.ActualWeight = model.Weight;
+                model.ActualWeight = model.Weight-model.TareWeight;
             }
             MessageBox.Show("Weight has been set");
         }
