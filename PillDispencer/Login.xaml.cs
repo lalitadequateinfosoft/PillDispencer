@@ -14,7 +14,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PillDispencer.Model;
-
+using onvif.soapenv;
+using System.Text.RegularExpressions;
+using PillDispencer.Services.IServices;
+using Microsoft.VisualStudio.Threading;
 namespace PillDispencer
 {
     /// <summary>
@@ -30,6 +33,12 @@ namespace PillDispencer
             InitializeComponent();
             this.DataContext = loginViewModel;
             sessionId = "SignInSession_" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Day.ToString();
+            if(AppicationSession.SessionDetails!=null)
+            {
+                MainWindow main = new MainWindow();
+                this.Close();
+                main.Show();
+            }
         }
 
 
@@ -48,23 +57,44 @@ namespace PillDispencer
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.Password) && model.Username == "edward.2022" && model.Password == "Adk@2017")
+                    model.IsReady = false;
+                    if (!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.Password))
                     {
-                        string log = "Login with username:" + model.Username + " is successfull.";
-                        LogWriter.LogWrite(log, sessionId);
-                        MainWindow main = new MainWindow();
-                        this.Close();
-                        main.Show();
+                        LoginModel user = new LoginModel();
+                        user.Email = model.Username.ToLower().ToString();
+                        user.Password = model.Password;
+                        ApiService service = new ApiService();
+                        var task = Task.Run(async () => await service.LoginAsync(user));
+                        UserTokens tokens = task.Result;
+                        if (tokens.Code == (int)ResponseEnum.success)
+                        {
+                            string log = "Login with username:" + model.Username + " is successfull.";
+                            LogWriter.LogWrite(log, sessionId);
+                            
+                            MainWindow main = new MainWindow();
+                            this.Close();
+                            model.IsReady = true;
+                            main.Show();
+                        }
+                        else
+                        {
+                            string log = "Sign in with username:" + model.Username + " failed. invalid/Empty username and password provided";
+                            LogWriter.LogWrite(log, sessionId);
+                            MessageBox.Show("Login failed!,invalid/Empty username and password provided");
+                        }
+                            
                     }
                     else
                     {
-                        string log = "Sign in with username:" + model.Username + " failed. invalid/Empty username and password provided";
+                        string log = "Empty username/password provided..";
                         LogWriter.LogWrite(log, sessionId);
-                        MessageBox.Show("Login failed!,invalid/Empty username and password provided");
+                        MessageBox.Show("Login failed!,Empty username/password provided..");
                     }
+                    model.IsReady = true;
                 }
                 catch(Exception ex)
                 {
+                    model.IsReady = true;
                     string log = "An error has occured:\r"+ex.StackTrace.ToString()+".";
                     log = log + "\r\n error description : " + ex.ToString();
                     LogWriter.LogWrite(log, sessionId);

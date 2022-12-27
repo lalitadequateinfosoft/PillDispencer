@@ -176,6 +176,7 @@
                                     FontWeight="Bold"
                                     Content="LOGIN"
                                     Click="LoginButton_Click"
+                                    IsEnabled="{Binding Path=IsReady}"
                                     Width="120"
                                     Height="50"
                                    HorizontalAlignment="Right"

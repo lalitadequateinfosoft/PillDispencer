@@ -19,6 +19,7 @@ namespace PillDispencer.ViewModel
         {
             IsPasswordVisible=Visibility.Collapsed;
             IsPasswordHidden=Visibility.Visible;
+            IsReady = true;
         }
         private string _username;
 
@@ -29,6 +30,18 @@ namespace PillDispencer.ViewModel
             {
                 _username = value;
                 OnPropertyChanged(nameof(Username));
+            }
+        }
+
+        private bool _IsReady;
+
+        public bool IsReady
+        {
+            get => _IsReady;
+            set
+            {
+                _IsReady = value;
+                OnPropertyChanged(nameof(IsReady));
             }
         }
 
