@@ -51,7 +51,7 @@ namespace PillDispencer
             }
         }
 
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is LoginViewModel model)
             {
@@ -64,8 +64,7 @@ namespace PillDispencer
                         user.Email = model.Username.ToLower().ToString();
                         user.Password = model.Password;
                         ApiService service = new ApiService();
-                        var task = Task.Run(async () => await service.LoginAsync(user));
-                        UserTokens tokens = task.Result;
+                        UserTokens tokens = await service.LoginAsync(user);
                         if (tokens.Code == (int)ResponseEnum.success)
                         {
                             string log = "Login with username:" + model.Username + " is successfull.";
@@ -92,7 +91,7 @@ namespace PillDispencer
                     }
                     model.IsReady = true;
                 }
-                catch(Exception ex)
+                catch(TaskCanceledException ex)
                 {
                     model.IsReady = true;
                     string log = "An error has occured:\r"+ex.StackTrace.ToString()+".";

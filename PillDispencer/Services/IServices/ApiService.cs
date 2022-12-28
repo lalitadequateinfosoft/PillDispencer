@@ -18,6 +18,7 @@ namespace PillDispencer.Services.IServices
             UserTokens userTokens = new UserTokens();
 
             HttpClient client = httphelper.GetClient();
+            client.Timeout = TimeSpan.FromMinutes(30);
             StringContent content = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
             string endpoint = $"{Urls.Url}" + ApiPath.Login;
 
