@@ -873,35 +873,36 @@ namespace PillDispencer.Pages
                             hMIViewModel.SetPoint0Percent = 100;
                             hMIViewModel.SetPoint0 = hMIViewModel.ActualWeight;
 
-                            _dispathcer.Invoke(new Action(() =>
+                            //_dispathcer.Invoke(new Action(() =>
+                            //{
+                            //    MessageLog.Text = "Weight has been set. Now Check set checkpoints.";
+                            //}));
+
+                            if (hMIViewModel.SetPoint1Percent <= 0 || hMIViewModel.SetPoint2Percent <= 0)
                             {
-                                MessageLog.Text = "Weight has been set. Now Check set checkpoints.";
-                            }));
-                            return;
-                        }
+                                log = "Set Points not checked..";
+                                LogWriter.LogWrite(log, sessionId);
+                                _dispathcer.Invoke(new Action(() =>
+                                {
+                                    MessageLog.Text = "Please check set points or enter custom set points";
 
+                                }));
+                                return;
+                            }
 
-                        if (hMIViewModel.SetPoint1Percent <= 0 || hMIViewModel.SetPoint2Percent <= 0)
-                        {
-                            log = "Set Points not checked..";
-                            LogWriter.LogWrite(log, sessionId);
-                            _dispathcer.Invoke(new Action(() =>
+                            if (hMIViewModel.SetPoint1Percent > 0 && hMIViewModel.SetPoint2Percent > 0)
                             {
-                                MessageLog.Text = "Please check set points or enter custom set points";
-
-                            }));
-                            hMIViewModel.IsNotRunning = true;
+                                hMIViewModel.SetPoint1 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint1Percent) / 100) * hMIViewModel.ActualWeight);
+                                hMIViewModel.SetPoint2 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint2Percent) / 100) * hMIViewModel.ActualWeight);
+                                log = "Set point 1 is : " + hMIViewModel.SetPoint1 + ", Set point 2 is " + hMIViewModel.SetPoint2;
+                                LogWriter.LogWrite(log, sessionId);
+                                return;
+                            }
                             return;
                         }
 
-                        if (hMIViewModel.SetPoint1Percent > 0 && hMIViewModel.SetPoint2Percent > 0 && hMIViewModel.IsNotRunning == true)
-                        {
-                            hMIViewModel.SetPoint1 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint1Percent) / 100) * hMIViewModel.ActualWeight);
-                            hMIViewModel.SetPoint2 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint2Percent) / 100) * hMIViewModel.ActualWeight);
-                            log = "Set point 1 is : " + hMIViewModel.SetPoint1 + ", Set point 2 is " + hMIViewModel.SetPoint2;
-                            LogWriter.LogWrite(log, sessionId);
-                            return;
-                        }
+
+                        
 
                         if (hMIViewModel.IsNotRunning == false)
                         {
