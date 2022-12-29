@@ -109,14 +109,14 @@
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
                                     <Label Content="TARE" FontSize="12" FontWeight="Medium" HorizontalAlignment="Left"/>
-                                    <Label Content="100%" FontSize="12" FontWeight="Medium" HorizontalAlignment="Right"/>
                                 </Grid>
                                 <Border Grid.Row="1"
                                         BorderBrush="#4a4a4a"
                                         BorderThickness="1"
                                         Background="#d9d9d9"
                                         Margin="0,5,0,5">
-                                    <TextBox Text="{Binding TareWeight,Mode=TwoWay, StringFormat={}{0} LBS}"
+                                    <TextBox
+                                        x:Name="TareWeightText"
                                            FontSize="28"
                                            FontWeight="Bold"
                                            Foreground="#4a4a4a"
@@ -173,7 +173,7 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <RadioButton IsEnabled="{Binding IsNotRunning}"
-                                                 IsChecked="{Binding Path=HundChecked,Mode=TwoWay}"
+                                                 Checked="SetPoint1Check_Checked"
                                                  GroupName="WeightPoint"
                                                  x:Name="HundredCheck"
                                                  Content="100%"
@@ -182,59 +182,64 @@
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Foreground="#b8b8b8"
-                                                 FontSize="16"/>
+                                                 FontSize="16"
+                                                 Tag="100"/>
                                     <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 Checked="SetPoint1Check_Checked"
                                                  GroupName="WeightPoint"
                                                  x:Name="fiftyCheck"
                                                  Content="50%"
-                                                 IsChecked="{Binding Path=FifChecked,Mode=TwoWay}"
                                                  BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
                                                  FontSize="16"
-                                                 Foreground="#b8b8b8"/>
+                                                 Foreground="#b8b8b8"
+                                                 Tag="50"/>
                                     <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 Checked="SetPoint1Check_Checked"
                                                  GroupName="WeightPoint"
                                                  x:Name="TwentyCheck"
                                                  Content="20%"
-                                                 IsChecked="{Binding Path=TweChecked,Mode=TwoWay}"
                                                  BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
                                                  FontSize="16"
-                                                 Foreground="#b8b8b8"/>
+                                                 Foreground="#b8b8b8"
+                                                 Tag="20"/>
                                     <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 Checked="SetPoint1Check_Checked"
                                                  GroupName="WeightPoint"
                                                  x:Name="TenCheck"
                                                  Content="10%"
-                                                 IsChecked="{Binding Path=TenChecked,Mode=TwoWay}"
                                                  BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
                                                  FontSize="16"
-                                                 Foreground="#b8b8b8"/>
+                                                 Foreground="#b8b8b8"
+                                                  Tag="10"/>
                                     <RadioButton IsEnabled="{Binding IsNotRunning}"
+                                                 Checked="SetPoint1Check_Checked"
                                                  GroupName="WeightPoint"
                                                  x:Name="CustomCheck"
                                                  Content="Custom Value"
-                                                 IsChecked="{Binding Path=CustomSetPointChecked1,Mode=TwoWay}"
                                                  BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
                                                  FontSize="16"
-                                                 Foreground="#b8b8b8"/>
+                                                 Foreground="#b8b8b8"
+                                                  Tag="Custom"/>
                                     <TextBox 
                                         x:Name="WeightCheckCustomValue"
-                                        Text="{Binding _CustomSetPoint1,Mode=TwoWay}"
                                         IsEnabled="{Binding IsNotRunning}"
+                                        TextChanged="WeightCheckCustomValue_TextChanged"
                                         BorderBrush="#4a4a4a"
                                         BorderThickness="1"
                                         Background="#dcdcdc"
@@ -269,32 +274,34 @@
                                             <RadioButton
                                                 GroupName="ControlPoint"
                                                  IsEnabled="{Binding IsNotRunning}"
+                                                Checked="SetPoint2Check_Checked"
                                                  x:Name="fiveCheck"
                                                  Content="5%"
-                                                 IsChecked="{Binding Path=FivChecked,Mode=TwoWay}"
                                                  BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  FontSize="16"
-                                                 Foreground="#b8b8b8"/>
+                                                 Foreground="#b8b8b8"
+                                                Tag="5"/>
 
                                             <RadioButton
                                                 IsEnabled="{Binding IsNotRunning}"
+                                                Checked="SetPoint2Check_Checked"
                                                 GroupName="ControlPoint"
                                                  x:Name="CustomControlCheck"
                                                  Content="Custom Value"
-                                                 IsChecked="{Binding Path=CustomSetPointChecked2,Mode=TwoWay}"
                                                  BorderBrush="#959595" 
                                                  Background="White"
                                                  BorderThickness="4"
                                                  VerticalContentAlignment="Center"
                                                  Margin="10,0,10,0"
                                                  FontSize="16"
-                                                 Foreground="#b8b8b8"/>
+                                                 Foreground="#b8b8b8"
+                                                Tag="Custom"/>
                                             <TextBox 
                                         x:Name="ControlCheckCustomValue"
-                                        Text="{Binding _CustomSetPoint2,Mode=TwoWay}"
+                                        TextChanged="ControlCheckCustomValue_TextChanged"
                                         IsEnabled="{Binding IsNotRunning}"
                                         BorderBrush="#4a4a4a"
                                         BorderThickness="1"

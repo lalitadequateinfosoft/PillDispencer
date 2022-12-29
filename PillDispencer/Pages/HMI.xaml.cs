@@ -1,4 +1,5 @@
 ﻿
+using ControlzEx.Standard;
 using Ozeki;
 using PillDispencer.Model;
 using PillDispencer.PopUp;
@@ -13,7 +14,9 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.TextFormatting;
 using System.Windows.Threading;
+using utils;
 
 namespace PillDispencer.Pages
 {
@@ -84,7 +87,7 @@ namespace PillDispencer.Pages
         {
             if (this.DataContext is HMIViewModel model)
             {
-                model.ActualWeight = model.Weight - model.TareWeight;
+                model.ActualWeight = model.Weight;
             }
             MessageBox.Show("Weight has been set");
         }
@@ -94,7 +97,6 @@ namespace PillDispencer.Pages
             if (this.DataContext is HMIViewModel model)
             {
                 model.Weight = 0;
-                model.ActualWeight = 0;
                 model.WeightPercentage = 0;
                 MessageBox.Show("Weight has been reset");
             }
@@ -102,7 +104,25 @@ namespace PillDispencer.Pages
 
         private void SaveTareWeight_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Tare Weight has been set");
+            if (string.IsNullOrEmpty(TareWeightText.Text)) return;
+
+
+            if (this.DataContext is HMIViewModel model)
+            {
+                if(Regex.IsMatch(TareWeightText.Text.ToString(), @"^\d+$"))
+                {
+                    model.TareWeight = Math.Round(Convert.ToDecimal(TareWeightText.Text.ToString()));
+                    model.ActualWeight = model.ActualWeight- model.TareWeight;
+                    MessageBox.Show("Tare Weight has been set");
+                }
+                else
+                {
+                    MessageBox.Show("Incorrect input provided.");
+                    TareWeightText.Text = "";
+                }
+
+            }
+                
         }
 
         private void ResetTareWeight_Click(object sender, RoutedEventArgs e)
@@ -191,10 +211,12 @@ namespace PillDispencer.Pages
                 if (this.DataContext is HMIViewModel model)
                 {
                     model.IsNotRunning = true;
-                    model.ActualWeight = 0;
                     model.Weight = 0;
                     model.WeightPercentage = 0;
-                    model.TareWeight = 0;
+                    model.IsSetPoint0Passed = false;
+                    model.IsSetPoint1Passed = false;
+                    model.IsSetPoint2Passed = false;
+                    model.IsBatchComplete = false;
                 }
             }
             catch (Exception ex)
@@ -270,8 +292,12 @@ namespace PillDispencer.Pages
         private void ExecuteLogic()
         {
             hMIViewModel.IsNotRunning = false;
+            hMIViewModel.Weight = 0;
+            hMIViewModel.WeightPercentage = 0;
+            hMIViewModel.IsSetPoint0Passed = false;
             hMIViewModel.IsSetPoint1Passed = false;
             hMIViewModel.IsSetPoint2Passed = false;
+            hMIViewModel.IsBatchComplete = false;
             ConnectWeight(weighing.PortName, weighing.BaudRate, weighing.DataBit, weighing.StopBit, weighing.Parity);
             Connect_control_card(control.PortName, control.BaudRate, control.DataBit, control.StopBit, control.Parity);
         }
@@ -728,6 +754,7 @@ namespace PillDispencer.Pages
         {
             try
             {
+                string log = string.Empty;
                 if (_recData.MbTgm.Length > 0 && _recData.MbTgm.Length > readIndex)
                 {
                     byte[] bytestToRead = _recData.MbTgm.Skip(readIndex).ToArray();
@@ -739,11 +766,17 @@ namespace PillDispencer.Pages
                     var lastitem = data[data.Length - 1];
                     var outP = lastitem.ToLower().ToString();
 
+                    log = "Received raw data : " + actualdata;
+                    LogWriter.LogWrite(log, sessionId);
+
+
                     if (!string.IsNullOrEmpty(outP))
                     {
                         Regex re = new Regex(@"\d+");
                         Match m = re.Match(outP);
                         decimal balance = Convert.ToDecimal(m.Value);
+                        log = "Received filtered raw data : "+ balance;
+                        LogWriter.LogWrite(log, sessionId);
 
                         _dispathcer.Invoke(new Action(() =>
                         {
@@ -751,10 +784,12 @@ namespace PillDispencer.Pages
 
                         }));
 
-                        string log = "Reading weight..";
+                        log = "Reading weight..";
                         LogWriter.LogWrite(log, sessionId);
                         if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning == true)
                         {
+                            log = "Zero value has been set to "+ balance;
+                            LogWriter.LogWrite(log, sessionId);
                             hMIViewModel.Zero = balance;
                             _dispathcer.Invoke(new Action(() =>
                             {
@@ -765,6 +800,8 @@ namespace PillDispencer.Pages
 
                         if (hMIViewModel.Span <= 0)
                         {
+                            log = "Span has not been set";
+                            LogWriter.LogWrite(log, sessionId);
                             _dispathcer.Invoke(new Action(() =>
                             {
                                 MessageLog.Text = "Please put some weight on the scale and set span value for calibrations calculation...";
@@ -776,19 +813,22 @@ namespace PillDispencer.Pages
                         {
                             decimal diff = balance - hMIViewModel.Zero;
                             decimal divident = diff / hMIViewModel.Span;
-                            hMIViewModel.Factor = divident;
+                            hMIViewModel.Factor = Math.Round(divident);
                             hMIViewModel.CalculateSpan = false;
                             _dispathcer.Invoke(new Action(() =>
                             {
                                 MessageLog.Text = "Calibration completed, Please set tare weight if needed...";
                             }));
-                            string Callog = "Calibration completed, Please set tare weight if needed....";
-                            LogWriter.LogWrite(Callog, sessionId);
+
+                            log = "Calibration has been set to "+ hMIViewModel.Factor + ", Please set tare weight if needed....";
+                            LogWriter.LogWrite(log, sessionId);
                             //hMIViewModel.Weight = 0;
                             return;
                         }
                         if (hMIViewModel.Factor <= 0)
                         {
+                            log = "Calibration factor is zero.";
+                            LogWriter.LogWrite(log, sessionId);
                             _dispathcer.Invoke(new Action(() =>
                             {
                                 MessageLog.Text = "calibrations is zero, Please enter some weight to calculate calibration.";
@@ -809,123 +849,71 @@ namespace PillDispencer.Pages
 
                         decimal weight = balance - hMIViewModel.Zero;
                         weight = weight / hMIViewModel.Factor;
-                        weight = Math.Round(weight, 2);
-                        weight = weight - hMIViewModel.TareWeight;
+                        weight = Math.Round(weight);
+
                         if (hMIViewModel.IsNotRunning == true && hMIViewModel.ActualWeight <= 0)
                         {
-                            hMIViewModel.Weight = Math.Round(weight, 2);
-
+                            hMIViewModel.Weight = Math.Round(weight);
+                            log = "Actual weight has not been set.";
+                            LogWriter.LogWrite(log, sessionId);
                             _dispathcer.Invoke(new Action(() =>
                             {
                                 MessageLog.Text = "Please Set 100% weight.";
                             }));
                             return;
                         }
+
+                        weight = weight - hMIViewModel.TareWeight;
+                        hMIViewModel.Weight = Math.Round(weight);
+                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100);
                         if (hMIViewModel.ActualWeight > 0 && hMIViewModel.IsNotRunning == true)
                         {
-                            string Wog = "Weight has been set.";
-                            LogWriter.LogWrite(Wog, sessionId);
-
-                            hMIViewModel.Weight = Math.Round(weight, 2);
-                            hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
-                            WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
-                            WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
-                            WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
+                            log = "Weight has been set. Actual Weight is : " + hMIViewModel.ActualWeight;
+                            LogWriter.LogWrite(log, sessionId);
+                            hMIViewModel.SetPoint0Percent = 100;
+                            hMIViewModel.SetPoint0 = hMIViewModel.ActualWeight;
 
                             _dispathcer.Invoke(new Action(() =>
                             {
-                                red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                red.Background = (Brush)bc.ConvertFromString("#cecece");
-                                red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-                                TextRed.Content = "OFF";
-
-                                Green.Foreground = Brushes.Green;
-                                Green.Background = Brushes.LightGreen;
-                                Green.BorderBrush = Brushes.Green;
-                                Green.IsChecked = true;
-                                TextGreen.Content = "ON";
-
-                                yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                yellow.Background = (Brush)bc.ConvertFromString("#cecece");
-                                yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-                                TextYellow.Content = "OFF";
-
-                                MessageLog.Text = "Please start the program by clicking run.";
-
-                            }));
-
-
-
-                            return;
-                        }
-
-
-                        if ((hMIViewModel.CustomSetPoint1 <= 0 && hMIViewModel.CustomSetPoint2 <= 0) && hMIViewModel.IsNotRunning == true)
-                        {
-                            _dispathcer.Invoke(new Action(() =>
-                            {
-                                MessageLog.Text = "Please check set points.";
-
+                                MessageLog.Text = "Weight has been set. Now Check set checkpoints.";
                             }));
                             return;
                         }
 
-                        decimal expectedWeight100 = 1 * hMIViewModel.ActualWeight;
-                        decimal expectedWeight50 = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeight20 = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeight10 = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeightC1 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeight5 = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
-                        decimal expectedWeightC2 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
 
-                        if (hMIViewModel.HundChecked)
+                        if (hMIViewModel.SetPoint1Percent <= 0 || hMIViewModel.SetPoint2Percent <= 0)
                         {
-                            hMIViewModel.SetPoint1 = expectedWeight100;
-                        }
-                        else if (hMIViewModel.FifChecked)
-                        {
-                            hMIViewModel.SetPoint1 = expectedWeight50;
-                        }
-                        else if (hMIViewModel.TweChecked)
-                        {
-                            hMIViewModel.SetPoint1 = expectedWeight20;
-                        }
-                        else if (hMIViewModel.TenChecked)
-                        {
-                            hMIViewModel.SetPoint1 = expectedWeight10;
-                        }
-                        else if (hMIViewModel.CustomSetPointChecked1)
-                        {
-                            hMIViewModel.SetPoint1 = expectedWeightC1;
-                        }
-
-                        if (hMIViewModel.FivChecked)
-                        {
-                            hMIViewModel.SetPoint2 = expectedWeight5;
-                        }
-                        else if (hMIViewModel.CustomSetPointChecked2)
-                        {
-                            hMIViewModel.SetPoint2 = expectedWeightC2;
-                        }
-
-
-
-                        _dispathcer.Invoke(new Action(() =>
-                        {
-                            MessageLog.Text = "Processing started..";
-                        }));
-
-                        hMIViewModel.Weight = Math.Round(weight, 2);
-                        hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
-
-
-                        if (hMIViewModel.IsSetPoint1Passed == false)
-                        {
-                            if (hMIViewModel.SetPoint1 <= hMIViewModel.Weight)
+                            log = "Set Points not checked..";
+                            LogWriter.LogWrite(log, sessionId);
+                            _dispathcer.Invoke(new Action(() =>
                             {
-                                hMIViewModel.IsSetPoint1Passed = true;
-                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
-                                WriteControCardState(control.Yellow.RegisterNo, 1, control.SlaveAddress);
+                                MessageLog.Text = "Please check set points or enter custom set points";
+
+                            }));
+                            hMIViewModel.IsNotRunning = true;
+                            return;
+                        }
+
+                        if (hMIViewModel.SetPoint1Percent > 0 && hMIViewModel.SetPoint2Percent > 0 && hMIViewModel.IsNotRunning == true)
+                        {
+                            hMIViewModel.SetPoint1 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint1Percent) / 100) * hMIViewModel.ActualWeight);
+                            hMIViewModel.SetPoint2 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint2Percent) / 100) * hMIViewModel.ActualWeight);
+                            log = "Set point 1 is : " + hMIViewModel.SetPoint1 + ", Set point 2 is " + hMIViewModel.SetPoint2;
+                            LogWriter.LogWrite(log, sessionId);
+                            return;
+                        }
+
+                        if (hMIViewModel.IsNotRunning == false)
+                        {
+                            if (hMIViewModel.Weight > hMIViewModel.SetPoint1 && hMIViewModel.Weight <= hMIViewModel.SetPoint0 && hMIViewModel.IsSetPoint0Passed == false)
+                            {
+                                _dispathcer.Invoke(new Action(() =>
+                                {
+                                    MessageLog.Text = "Weight is decreasing from 100%..";
+                                }));
+                                hMIViewModel.IsSetPoint0Passed = true;
+                                WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
+                                WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
                                 WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
 
                                 _dispathcer.Invoke(new Action(() =>
@@ -935,57 +923,94 @@ namespace PillDispencer.Pages
                                     red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
                                     TextRed.Content = "OFF";
 
-                                    Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                    Green.Background = (Brush)bc.ConvertFromString("#cecece");
-                                    Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-                                    TextGreen.Content = "OFF";
-
-                                    yellow.Foreground = Brushes.Yellow;
-                                    yellow.Background = Brushes.LightYellow;
-                                    yellow.BorderBrush = Brushes.Yellow;
-                                    yellow.IsChecked = true;
-                                    TextYellow.Content = "ON";
-                                    MessageLog.Text = "Weight has pass from set point 1.";
-
-                                }));
-                            }
-
-                            return;
-                        }
-
-
-                        if (hMIViewModel.IsSetPoint2Passed == false)
-                        {
-                            if (hMIViewModel.SetPoint2 <= hMIViewModel.Weight)
-                            {
-                                hMIViewModel.IsSetPoint2Passed = true;
-                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
-                                WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
-                                WriteControCardState(control.Red.RegisterNo, 1, control.SlaveAddress);
-
-                                _dispathcer.Invoke(new Action(() =>
-                                {
-                                    red.Foreground = Brushes.Red;
-                                    red.Background = Brushes.LightGoldenrodYellow;
-                                    red.BorderBrush = Brushes.Red;
-                                    red.IsChecked = true;
-                                    TextRed.Content = "ON";
-
-                                    Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
-                                    Green.Background = (Brush)bc.ConvertFromString("#cecece");
-                                    Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
-                                    TextGreen.Content = "OFF";
+                                    Green.Foreground = Brushes.Green;
+                                    Green.Background = Brushes.LightGreen;
+                                    Green.BorderBrush = Brushes.Green;
+                                    Green.IsChecked = true;
+                                    TextGreen.Content = "ON";
 
                                     yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
                                     yellow.Background = (Brush)bc.ConvertFromString("#cecece");
                                     yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
                                     TextYellow.Content = "OFF";
+
+                                    MessageLog.Text = "Please start the program by clicking run.";
+
                                 }));
 
+                                log = "Weight is decreasing from 100%. Current Weight is : " + hMIViewModel.Weight;
+                                LogWriter.LogWrite(log, sessionId);
+
+                                return;
                             }
 
-                            return;
+                            if (hMIViewModel.Weight > hMIViewModel.SetPoint2 && hMIViewModel.Weight <= hMIViewModel.SetPoint1 && hMIViewModel.IsSetPoint1Passed == false)
+                            {
+
+                                hMIViewModel.IsSetPoint1Passed = true;
+                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
+                                WriteControCardState(control.Yellow.RegisterNo, 1, control.SlaveAddress);
+                                WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
+                                log = "Weight is decreasing from " + hMIViewModel.SetPoint1Percent + "%. Current Weight is : " + hMIViewModel.Weight;
+                                LogWriter.LogWrite(log, sessionId);
+                                _dispathcer.Invoke(new Action(() =>
+                                    {
+                                        red.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                        red.Background = (Brush)bc.ConvertFromString("#cecece");
+                                        red.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                        TextRed.Content = "OFF";
+
+                                        Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                        Green.Background = (Brush)bc.ConvertFromString("#cecece");
+                                        Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                        TextGreen.Content = "OFF";
+
+                                        yellow.Foreground = Brushes.Yellow;
+                                        yellow.Background = Brushes.LightYellow;
+                                        yellow.BorderBrush = Brushes.Yellow;
+                                        yellow.IsChecked = true;
+                                        TextYellow.Content = "ON";
+                                        MessageLog.Text = "Weight has pass from set point 1.";
+
+                                    }));
+                                return;
+                            }
+
+                            if (hMIViewModel.Weight >= hMIViewModel.SetPoint2 && hMIViewModel.IsSetPoint2Passed == false)
+                            {
+
+                                hMIViewModel.IsSetPoint2Passed = true;
+                                WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
+                                WriteControCardState(control.Yellow.RegisterNo, 0, control.SlaveAddress);
+                                WriteControCardState(control.Red.RegisterNo, 1, control.SlaveAddress);
+
+                                log = "Weight is decreasing from " + hMIViewModel.SetPoint2Percent + "%. Current Weight is : " + hMIViewModel.Weight;
+                                LogWriter.LogWrite(log, sessionId);
+
+                                _dispathcer.Invoke(new Action(() =>
+                                    {
+                                        red.Foreground = Brushes.Red;
+                                        red.Background = Brushes.LightGoldenrodYellow;
+                                        red.BorderBrush = Brushes.Red;
+                                        red.IsChecked = true;
+                                        TextRed.Content = "ON";
+
+                                        Green.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                        Green.Background = (Brush)bc.ConvertFromString("#cecece");
+                                        Green.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                        TextGreen.Content = "OFF";
+
+                                        yellow.Foreground = (Brush)bc.ConvertFromString("#b8b8b8");
+                                        yellow.Background = (Brush)bc.ConvertFromString("#cecece");
+                                        yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
+                                        TextYellow.Content = "OFF";
+                                    }));
+                                return;
+                            }
                         }
+
+                        log = "BATCH COMPLETED. Current Weight is : " + hMIViewModel.Weight;
+                        LogWriter.LogWrite(log, sessionId);
                         _dispathcer.Invoke(new Action(() =>
                         {
                             MessageLog.Text = "BATCH COMPLETED..";
@@ -1010,15 +1035,18 @@ namespace PillDispencer.Pages
         {
             try
             {
-                //StopPortCommunication((int)Model.Module_Device_Type.UART);
-                StopPortCommunication((int)Model.Module_Device_Type.ModBus);
                 weighing.IsTurnedOn = false;
                 control.IsTurnedOn = false;
+                StopPortCommunication((int)Model.Module_Device_Type.UART);
+                StopPortCommunication((int)Model.Module_Device_Type.ModBus);
+               
                 hMIViewModel.Weight = 0;
                 hMIViewModel.WeightPercentage = 0;
                 hMIViewModel.IsNotRunning = true;
+                hMIViewModel.IsSetPoint0Passed = false;
                 hMIViewModel.IsSetPoint1Passed = false;
                 hMIViewModel.IsSetPoint2Passed = false;
+                hMIViewModel.IsBatchComplete = true;
                 _dispathcer.Invoke(new Action(() =>
                 {
                     MessageLog.Text = "Batch has been completed.";
@@ -1034,6 +1062,9 @@ namespace PillDispencer.Pages
         }
         void StartBatch()
         {
+            hMIViewModel.IsBatchComplete = false;
+            hMIViewModel.IsNotRunning = true;
+            
             _dispathcer.Invoke(new Action(() =>
             {
                 MessageLog.Text = "Starting new batch..";
@@ -1156,6 +1187,82 @@ namespace PillDispencer.Pages
                 {
                     model.Span = Convert.ToDecimal(textb.Text.ToString());
                     model.CalculateSpan = true;
+                }
+            }
+        }
+
+        private void WeightCheckCustomValue_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var text= sender as System.Windows.Controls.TextBox;
+            if(!string.IsNullOrEmpty(text.Text) && CustomCheck.IsChecked==true)
+            {
+                if (this.DataContext is HMIViewModel model)
+                {
+                    model.SetPoint1Percent = Math.Round(Convert.ToDecimal(text.Text.ToString()));
+                }
+            }
+        }
+
+        private void ControlCheckCustomValue_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var text = sender as System.Windows.Controls.TextBox;
+            if (!string.IsNullOrEmpty(text.Text) && CustomControlCheck.IsChecked == true)
+            {
+                if (this.DataContext is HMIViewModel model)
+                {
+                    model.SetPoint2Percent = Math.Round(Convert.ToDecimal(text.Text.ToString()));
+                }
+            }
+        }
+
+        private void SetPoint1Check_Checked(object sender, RoutedEventArgs e)
+        {
+            var radio=sender as RadioButton; 
+            if(radio.IsChecked==true)
+            {
+                if(this.DataContext is HMIViewModel model)
+                {
+                    if(radio.Tag.ToString()=="Custom")
+                    {
+                        if(!string.IsNullOrEmpty(WeightCheckCustomValue.Text.ToString()))
+                        {
+                            if(Regex.IsMatch(WeightCheckCustomValue.Text.ToString(), @"^\d+$"))
+                            {
+                                model.SetPoint1Percent = Math.Round(Convert.ToDecimal(WeightCheckCustomValue.Text.ToString()));
+                            }
+                            
+                        }
+                    }
+                    else
+                    {
+                        model.SetPoint1Percent = Convert.ToDecimal(radio.Tag.ToString());
+                    }
+                }
+            }
+
+        }
+        private void SetPoint2Check_Checked(object sender, RoutedEventArgs e)
+        {
+            var radio = sender as RadioButton;
+            if (radio.IsChecked == true)
+            {
+                if (this.DataContext is HMIViewModel model)
+                {
+                    if (radio.Tag.ToString() == "Custom")
+                    {
+                        if (!string.IsNullOrEmpty(ControlCheckCustomValue.Text.ToString()))
+                        {
+                            if (Regex.IsMatch(ControlCheckCustomValue.Text.ToString(), @"^\d+$"))
+                            {
+                                model.SetPoint2Percent = Math.Round(Convert.ToDecimal(ControlCheckCustomValue.Text.ToString()));
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        model.SetPoint2Percent = Convert.ToDecimal(radio.Tag.ToString());
+                    }
                 }
             }
         }

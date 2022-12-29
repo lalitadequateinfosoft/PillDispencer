@@ -16,18 +16,26 @@ namespace PillDispencer.ViewModel
         public HMIViewModel()
         {
             IsNotRunning = true;
+            IsBatchComplete = false;
             Zero = 0;
             Span = 0;
             Weight = 0;
             TareWeight = 0;
-            CustomSetPoint1 = 0;
-            CustomSetPoint2 = 0;
-            IsSaveEnabled=true;
+            IsSaveEnabled = true;
             CalculateSpan = false;
-            AutoZeroEnabled=false;
+            AutoZeroEnabled = false;
+            SetPoint0 = 0;
+            SetPoint0Percent = 0;
+            IsSetPoint0Passed = false;
+            SetPoint1 = 0;
+            SetPoint1Percent = 0;
+            IsSetPoint1Passed = false;
+            SetPoint2 = 0;
+            SetPoint2Percent = 0;
+            IsSetPoint2Passed = false;
         }
 
-        
+
 
         private bool _isNotRunning;
 
@@ -37,7 +45,53 @@ namespace PillDispencer.ViewModel
             set
             {
                 _isNotRunning = value;
+                IsRunning = !value;
                 OnPropertyChanged(nameof(IsNotRunning));
+            }
+        }
+
+        private decimal _setPoint0Percent;
+        public decimal SetPoint0Percent
+        {
+            get => _setPoint0Percent;
+            set
+            {
+                _setPoint0Percent = value;
+                OnPropertyChanged(nameof(SetPoint0Percent));
+            }
+        }
+
+        private decimal _setPoint0;
+        public decimal SetPoint0
+        {
+            get => _setPoint0;
+            set
+            {
+                _setPoint0 = value;
+                OnPropertyChanged(nameof(SetPoint0));
+            }
+        }
+
+        private bool _isSetPoint0Passed;
+
+        public bool IsSetPoint0Passed
+        {
+            get => _isSetPoint0Passed;
+            set
+            {
+                _isSetPoint0Passed = value;
+                OnPropertyChanged(nameof(IsSetPoint0Passed));
+            }
+        }
+
+        private decimal _setPoint1Percent;
+        public decimal SetPoint1Percent
+        {
+            get => _setPoint1Percent;
+            set
+            {
+                _setPoint1Percent = value;
+                OnPropertyChanged(nameof(SetPoint1Percent));
             }
         }
 
@@ -60,6 +114,17 @@ namespace PillDispencer.ViewModel
             {
                 _isSetPoint1Passed = value;
                 OnPropertyChanged(nameof(IsSetPoint1Passed));
+            }
+        }
+
+        private decimal _setPoint2Percent;
+        public decimal SetPoint2Percent
+        {
+            get => _setPoint2Percent;
+            set
+            {
+                _setPoint2Percent = value;
+                OnPropertyChanged(nameof(SetPoint2Percent));
             }
         }
 
@@ -121,10 +186,9 @@ namespace PillDispencer.ViewModel
             }
         }
 
-        public bool IsRunning
-        {
-            get => !_isNotRunning;
-        }
+        public bool IsRunning = false;
+
+
         private bool _isBatchComplete;
 
         public bool IsBatchComplete
@@ -223,111 +287,6 @@ namespace PillDispencer.ViewModel
             {
                 _WeightPercentage = value;
                 OnPropertyChanged(nameof(WeightPercentage));
-            }
-        }
-
-
-        private bool _CustomSetPointChecked1;
-        public bool CustomSetPointChecked1
-        {
-            get => _CustomSetPointChecked1;
-            set
-            {
-                _CustomSetPointChecked1 = value;
-                OnPropertyChanged(nameof(CustomSetPointChecked1));
-            }
-        }
-
-        private decimal _CustomSetPoint1;
-        public decimal CustomSetPoint1
-        {
-            get => _CustomSetPoint1;
-            set
-            {
-                _CustomSetPoint1 = value;
-                OnPropertyChanged(nameof(CustomSetPoint1));
-            }
-        }
-
-
-        private bool _CustomSetPointChecked2;
-        public bool CustomSetPointChecked2
-        {
-            get => _CustomSetPointChecked2;
-            set
-            {
-                _CustomSetPointChecked2 = value;
-                OnPropertyChanged(nameof(CustomSetPointChecked2));
-            }
-        }
-        private decimal _CustomSetPoint2;
-        public decimal CustomSetPoint2
-        {
-            get => _CustomSetPoint2;
-            set
-            {
-                _CustomSetPoint2 = value;
-                OnPropertyChanged(nameof(CustomSetPoint2));
-            }
-        }
-
-        private bool _HundChecked;
-
-        public bool HundChecked
-        {
-            get => _HundChecked;
-            set
-            {
-                _HundChecked = value;
-                OnPropertyChanged(nameof(HundChecked));
-            }
-        }
-
-        private bool _FifChecked;
-
-        public bool FifChecked
-        {
-            get => _FifChecked;
-            set
-            {
-                _FifChecked = value;
-                OnPropertyChanged(nameof(FifChecked));
-            }
-        }
-
-        private bool _TweChecked;
-
-        public bool TweChecked
-        {
-            get => _TweChecked;
-            set
-            {
-                _TweChecked = value;
-                OnPropertyChanged(nameof(TweChecked));
-            }
-        }
-
-        private bool _TenChecked;
-
-        public bool TenChecked
-        {
-            get => _TenChecked;
-            set
-            {
-                _TenChecked = value;
-                OnPropertyChanged(nameof(TenChecked));
-            }
-        }
-
-        private bool _FivChecked;
-
-        public bool FivChecked
-        {
-            get => _FivChecked;
-            set
-            {
-                _FivChecked = value;
-                OnPropertyChanged(nameof(FivChecked));
             }
         }
 
