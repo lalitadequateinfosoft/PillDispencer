@@ -48,7 +48,6 @@ namespace PillDispencer.Pages
 
         public Byte[] _MbTgmBytes;
         internal UInt32 TotalReceiveSize = 0;
-        bool IsComplete = false;
         private int readIndex = 0;
         #endregion
 
@@ -348,8 +347,7 @@ namespace PillDispencer.Pages
 
                 serialPort.Open();
             }
-            catch (Exception ex)
-            {
+            catch {
 
             }
 
@@ -467,7 +465,7 @@ namespace PillDispencer.Pages
                 case 1:
                     try
                     {
-                        int i = 0;
+                        //int i = 0;
                         weighing.RecIdx = 0;
                         weighing.RecState = 1;
                         recBuf = new byte[weighing.SerialDevice.BytesToRead];

@@ -32,7 +32,7 @@ namespace PillDispencer.Model
                     Log(logMessage, w);
                 }
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
@@ -50,7 +50,7 @@ namespace PillDispencer.Model
                 txtWriter.WriteLine("-------------------------------");
                 txtWriter.Dispose();
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
