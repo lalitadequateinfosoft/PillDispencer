@@ -84,7 +84,7 @@ namespace PillDispencer.Pages
         {
             if (this.DataContext is HMIViewModel model)
             {
-                model.ActualWeight = model.Weight-model.TareWeight;
+                model.ActualWeight = model.Weight - model.TareWeight;
             }
             MessageBox.Show("Weight has been set");
         }
@@ -451,6 +451,7 @@ namespace PillDispencer.Pages
                         weighing.LastResponseReceived = System.DateTime.Now;
                         weighing.IsComplete = true;
                         recBuf = new byte[REC_BUF_SIZE];
+                        UartDataReader();
                     }
                     catch (Exception ex)
                     {
@@ -462,7 +463,7 @@ namespace PillDispencer.Pages
                     break;
             }
 
-            UartDataReader();
+
 
         }
 
@@ -626,7 +627,7 @@ namespace PillDispencer.Pages
                 MODBUSComnn obj = new MODBUSComnn();
                 obj.GetMultiSendorValueFM3(control.SlaveAddress, 0, control.SerialDevice, 0, 30, "ControlCard", 1, 0, Model.DeviceType.ControlCard);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
                 log = log + "\r\n error description : " + ex.ToString();
@@ -715,7 +716,7 @@ namespace PillDispencer.Pages
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
                 log = log + "\r\n error description : " + ex.ToString();
@@ -749,6 +750,9 @@ namespace PillDispencer.Pages
                             MessageLog.Text = "Reading weight..";
 
                         }));
+
+                        string log = "Reading weight..";
+                        LogWriter.LogWrite(log, sessionId);
                         if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning == true)
                         {
                             hMIViewModel.Zero = balance;
@@ -778,6 +782,8 @@ namespace PillDispencer.Pages
                             {
                                 MessageLog.Text = "Calibration completed, Please set tare weight if needed...";
                             }));
+                            string Callog = "Calibration completed, Please set tare weight if needed....";
+                            LogWriter.LogWrite(Callog, sessionId);
                             //hMIViewModel.Weight = 0;
                             return;
                         }
@@ -803,6 +809,7 @@ namespace PillDispencer.Pages
 
                         decimal weight = balance - hMIViewModel.Zero;
                         weight = weight / hMIViewModel.Factor;
+                        weight = Math.Round(weight, 2);
                         weight = weight - hMIViewModel.TareWeight;
                         if (hMIViewModel.IsNotRunning == true && hMIViewModel.ActualWeight <= 0)
                         {
@@ -816,6 +823,9 @@ namespace PillDispencer.Pages
                         }
                         if (hMIViewModel.ActualWeight > 0 && hMIViewModel.IsNotRunning == true)
                         {
+                            string Wog = "Weight has been set.";
+                            LogWriter.LogWrite(Wog, sessionId);
+
                             hMIViewModel.Weight = Math.Round(weight, 2);
                             hMIViewModel.WeightPercentage = Math.Round((hMIViewModel.Weight / hMIViewModel.ActualWeight) * 100, 2);
                             WriteControCardState(control.Green.RegisterNo, 1, control.SlaveAddress);
@@ -844,45 +854,58 @@ namespace PillDispencer.Pages
 
                             }));
 
-                            decimal expectedWeight100 = 1 * hMIViewModel.ActualWeight;
-                            decimal expectedWeight50 = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
-                            decimal expectedWeight20 = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
-                            decimal expectedWeight10 = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
-                            decimal expectedWeightC1 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
-                            decimal expectedWeight5 = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
-                            decimal expectedWeightC2 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
 
-                            if (hMIViewModel.HundChecked)
-                            {
-                                hMIViewModel.SetPoint1 = expectedWeight100;
-                            }
-                            else if (hMIViewModel.FifChecked)
-                            {
-                                hMIViewModel.SetPoint1 = expectedWeight50;
-                            }
-                            else if (hMIViewModel.TweChecked)
-                            {
-                                hMIViewModel.SetPoint1 = expectedWeight20;
-                            }
-                            else if (hMIViewModel.TenChecked)
-                            {
-                                hMIViewModel.SetPoint1 = expectedWeight10;
-                            }
-                            else if (hMIViewModel.CustomSetPointChecked1)
-                            {
-                                hMIViewModel.SetPoint1 = expectedWeightC1;
-                            }
-
-                            if (hMIViewModel.FivChecked)
-                            {
-                                hMIViewModel.SetPoint2 = expectedWeight5;
-                            }
-                            else if (hMIViewModel.CustomSetPointChecked2)
-                            {
-                                hMIViewModel.SetPoint2 = expectedWeightC2;
-                            }
 
                             return;
+                        }
+
+
+                        if ((hMIViewModel.CustomSetPoint1 <= 0 && hMIViewModel.CustomSetPoint2 <= 0) && hMIViewModel.IsNotRunning == true)
+                        {
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                MessageLog.Text = "Please check set points.";
+
+                            }));
+                            return;
+                        }
+
+                        decimal expectedWeight100 = 1 * hMIViewModel.ActualWeight;
+                        decimal expectedWeight50 = Math.Round(0.5M * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeight20 = Math.Round(0.2M * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeight10 = Math.Round(0.1M * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeightC1 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint1) / 100) * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeight5 = Math.Round(0.05M * hMIViewModel.ActualWeight, 2);
+                        decimal expectedWeightC2 = Math.Round((Convert.ToDecimal(hMIViewModel.CustomSetPoint2) / 100) * hMIViewModel.ActualWeight, 2);
+
+                        if (hMIViewModel.HundChecked)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeight100;
+                        }
+                        else if (hMIViewModel.FifChecked)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeight50;
+                        }
+                        else if (hMIViewModel.TweChecked)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeight20;
+                        }
+                        else if (hMIViewModel.TenChecked)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeight10;
+                        }
+                        else if (hMIViewModel.CustomSetPointChecked1)
+                        {
+                            hMIViewModel.SetPoint1 = expectedWeightC1;
+                        }
+
+                        if (hMIViewModel.FivChecked)
+                        {
+                            hMIViewModel.SetPoint2 = expectedWeight5;
+                        }
+                        else if (hMIViewModel.CustomSetPointChecked2)
+                        {
+                            hMIViewModel.SetPoint2 = expectedWeightC2;
                         }
 
 
@@ -973,14 +996,14 @@ namespace PillDispencer.Pages
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
                 log = log + "\r\n error description : " + ex.ToString();
                 LogWriter.LogWrite(log, sessionId);
             }
 
-            
+
         }
 
         void BatchCompleted()
@@ -1001,13 +1024,13 @@ namespace PillDispencer.Pages
                     MessageLog.Text = "Batch has been completed.";
                 }));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string log = "An error has occured:\r" + ex.StackTrace.ToString() + ".";
                 log = log + "\r\n error description : " + ex.ToString();
                 LogWriter.LogWrite(log, sessionId);
             }
-            
+
         }
         void StartBatch()
         {
@@ -1120,8 +1143,6 @@ namespace PillDispencer.Pages
             }
 
         }
-
-
 
 
         #endregion
