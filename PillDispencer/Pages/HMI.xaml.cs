@@ -890,8 +890,8 @@ namespace PillDispencer.Pages
 
                             if (hMIViewModel.SetPoint1Percent > 0 && hMIViewModel.SetPoint2Percent > 0)
                             {
-                                hMIViewModel.SetPoint1 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint1Percent) / 100) * hMIViewModel.ActualWeight);
-                                hMIViewModel.SetPoint2 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint2Percent) / 100) * hMIViewModel.ActualWeight);
+                                hMIViewModel.SetPoint1 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint1Percent) / 100) * hMIViewModel.ActualWeight,2);
+                                hMIViewModel.SetPoint2 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint2Percent) / 100) * hMIViewModel.ActualWeight,2);
                                 log = "Set point 1 is : " + hMIViewModel.SetPoint1 + ", Set point 2 is " + hMIViewModel.SetPoint2;
                                 LogWriter.LogWrite(log, sessionId);
                                 return;
@@ -904,7 +904,7 @@ namespace PillDispencer.Pages
 
                         if (hMIViewModel.IsNotRunning == false)
                         {
-                            if (hMIViewModel.Weight > hMIViewModel.SetPoint1 && hMIViewModel.Weight <= hMIViewModel.SetPoint0 && hMIViewModel.IsSetPoint0Passed == false)
+                            if (weight > hMIViewModel.SetPoint1 && weight <= hMIViewModel.SetPoint0 && hMIViewModel.IsSetPoint0Passed == false)
                             {
                                 _dispathcer.Invoke(new Action(() =>
                                 {
@@ -937,20 +937,20 @@ namespace PillDispencer.Pages
 
                                 }));
 
-                                log = "Weight is decreasing from 100%. Current Weight is : " + hMIViewModel.Weight;
+                                log = "Weight is decreasing from 100%. Current Weight is : " + weight+", Actual Weight is :"+ hMIViewModel.ActualWeight;
                                 LogWriter.LogWrite(log, sessionId);
 
                                 return;
                             }
 
-                            if (hMIViewModel.Weight > hMIViewModel.SetPoint2 && hMIViewModel.Weight <= hMIViewModel.SetPoint1 && hMIViewModel.IsSetPoint1Passed == false)
+                            if (weight > hMIViewModel.SetPoint2 && weight <= hMIViewModel.SetPoint1 && hMIViewModel.IsSetPoint1Passed == false)
                             {
 
                                 hMIViewModel.IsSetPoint1Passed = true;
                                 WriteControCardState(control.Green.RegisterNo, 0, control.SlaveAddress);
                                 WriteControCardState(control.Yellow.RegisterNo, 1, control.SlaveAddress);
                                 WriteControCardState(control.Red.RegisterNo, 0, control.SlaveAddress);
-                                log = "Weight is decreasing from " + hMIViewModel.SetPoint1Percent + "%. Current Weight is : " + hMIViewModel.Weight;
+                                log = "Weight is decreasing from " + hMIViewModel.SetPoint1Percent + "%. Current Weight is : " + weight + ", Actual Weight is :" + hMIViewModel.ActualWeight; ;
                                 LogWriter.LogWrite(log, sessionId);
                                 _dispathcer.Invoke(new Action(() =>
                                     {
@@ -975,7 +975,7 @@ namespace PillDispencer.Pages
                                 return;
                             }
 
-                            if (hMIViewModel.Weight >= hMIViewModel.SetPoint2 && hMIViewModel.IsSetPoint2Passed == false)
+                            if (weight <= hMIViewModel.SetPoint2 && hMIViewModel.IsSetPoint2Passed == false)
                             {
 
                                 hMIViewModel.IsSetPoint2Passed = true;
@@ -1008,13 +1008,16 @@ namespace PillDispencer.Pages
                             }
                         }
 
-                        log = "BATCH COMPLETED. Current Weight is : " + hMIViewModel.Weight;
-                        LogWriter.LogWrite(log, sessionId);
-                        _dispathcer.Invoke(new Action(() =>
+                       if(hMIViewModel.IsSetPoint0Passed && hMIViewModel.IsSetPoint1Passed && hMIViewModel.IsSetPoint2Passed)
                         {
-                            MessageLog.Text = "BATCH COMPLETED..";
-                        }));
-                        BatchCompleted();
+                            log = "BATCH COMPLETED. Current Weight is : " + hMIViewModel.Weight;
+                            LogWriter.LogWrite(log, sessionId);
+                            _dispathcer.Invoke(new Action(() =>
+                            {
+                                MessageLog.Text = "BATCH COMPLETED..";
+                            }));
+                            BatchCompleted();
+                        }
                         return;
                     }
 
