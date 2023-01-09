@@ -8,6 +8,7 @@ namespace PillDispencer.Helper
 {
     public static class Urls
     {
+        //public static string BaseAddress = "http://192.168.1.105:94/jupiterapi/";
         public static string BaseAddress = "https://api.adequatetravel.com/jupiterapi/";
         public static string Url
         {

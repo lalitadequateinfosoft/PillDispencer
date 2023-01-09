@@ -25,28 +25,32 @@ namespace PillDispencer
 
 
             // Configure open file dialog box
-            var dialog = new Microsoft.Win32.OpenFileDialog();
-            dialog.Title = "Select your project";
-            dialog.DefaultExt = ".json"; // Default file extension
-            dialog.Filter = "PillDispencer Files (*.json)|*.json"; // Filter files by extension
+            //var dialog = new Microsoft.Win32.OpenFileDialog();
+            //dialog.Title = "Select your project";
+            //dialog.DefaultExt = ".json"; 
+            //dialog.Filter = "PillDispencer Files (*.json)|*.json"; 
 
-            // Show open file dialog box
-            bool? result = dialog.ShowDialog();
 
-            // Process open file dialog box results
-            if (result == true)
-            {
-                // Open document
-                hMI = new HMI();
-                hMI.ParentWindow = this;
-                this.frame.Navigate(hMI);
-            }
-            else
-            {
-                machine = new Machines();
-                machine.ParentWindow = this;
-                this.frame.Navigate(machine);
-            }
+            //bool? result = dialog.ShowDialog();
+
+
+            //if (result == true)
+            //{
+
+            //    hMI = new HMI();
+            //    hMI.ParentWindow = this;
+            //    this.frame.Navigate(hMI);
+            //}
+            //else
+            //{
+            //    machine = new Machines();
+            //    machine.ParentWindow = this;
+            //    this.frame.Navigate(machine);
+            //}
+
+            hMI = new HMI();
+            hMI.ParentWindow = this;
+            this.frame.Navigate(hMI);
 
 
         }

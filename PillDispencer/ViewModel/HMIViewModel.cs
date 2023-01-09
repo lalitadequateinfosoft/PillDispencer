@@ -186,7 +186,18 @@ namespace PillDispencer.ViewModel
             }
         }
 
-        public bool IsRunning = false;
+        
+        private bool _isRunning;
+
+        public bool IsRunning
+        {
+            get => _isRunning;
+            set
+            {
+                _isRunning = value;
+                OnPropertyChanged(nameof(IsRunning));
+            }
+        }
 
 
         private bool _isBatchComplete;

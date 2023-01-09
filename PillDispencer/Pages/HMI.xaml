@@ -47,16 +47,28 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
-                                    <Label Content="WEIGHT" FontSize="12" FontWeight="Medium" HorizontalAlignment="Left"/>
-                                    <Label Content="{Binding Path=WeightPercentage,StringFormat={}{0}%}" FontSize="12" FontWeight="Medium" HorizontalAlignment="Right"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Grid.Column="0" Content="WEIGHT" FontSize="12" FontWeight="Medium" HorizontalAlignment="Left"/>
+                                    <Label Grid.Column="1" Content="{Binding Path=WeightPercentage,StringFormat={}{0} %}" FontSize="12" FontWeight="Medium" HorizontalContentAlignment="Right"/>
                                 </Grid>
                                 <Border Grid.Row="1"
                                         BorderBrush="#4a4a4a"
                                         BorderThickness="1"
                                         Background="#d9d9d9"
                                         Margin="0,5,0,5">
-                                    <TextBox Text="{Binding Weight,Mode=TwoWay, StringFormat={}{0} LBS}"
-                                             IsEnabled="{Binding IsNotRunning}"
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                    <TextBox 
+                                        Grid.Column="0"
+                                        Text="{Binding Weight,Mode=TwoWay}"
+                                         IsEnabled="{Binding IsNotRunning}"
+                                        BorderThickness="0"
                                            FontSize="28"
                                            FontWeight="Bold"
                                            Foreground="#4a4a4a"
@@ -65,6 +77,19 @@
                                            VerticalAlignment="Stretch"
                                            HorizontalContentAlignment="Center"
                                            VerticalContentAlignment="Center"/>
+                                        <Label 
+                                            Grid.Column="1"
+                                            BorderThickness="0"
+                                            Content="LBS"
+                                            FontSize="28"
+                                           FontWeight="Bold"
+                                           Foreground="#4a4a4a"
+                                             Background="#d9d9d9"
+                                           HorizontalAlignment="Stretch"
+                                           VerticalAlignment="Stretch"
+                                           HorizontalContentAlignment="Left"
+                                           VerticalContentAlignment="Center"/>
+                                    </Grid>
                                 </Border>
                                 <Grid Grid.Row="2">
                                     <Button
@@ -115,8 +140,15 @@
                                         BorderThickness="1"
                                         Background="#d9d9d9"
                                         Margin="0,5,0,5">
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
                                     <TextBox
                                         x:Name="TareWeightText"
+                                        Grid.Column="0"
+                                        BorderThickness="0"
                                            FontSize="28"
                                            FontWeight="Bold"
                                            Foreground="#4a4a4a"
@@ -125,6 +157,20 @@
                                            VerticalAlignment="Stretch"
                                            HorizontalContentAlignment="Center"
                                            VerticalContentAlignment="Center"/>
+                                        <Label 
+                                            Grid.Column="1"
+                                            BorderThickness="0"
+                                            Content="LBS"
+                                            FontSize="28"
+                                           FontWeight="Bold"
+                                           Foreground="#4a4a4a"
+                                             Background="#d9d9d9"
+                                           HorizontalAlignment="Stretch"
+                                           VerticalAlignment="Stretch"
+                                           HorizontalContentAlignment="Left"
+                                           VerticalContentAlignment="Center"/>
+                                    </Grid>
+
                                 </Border>
                                 <Grid Grid.Row="2">
                                     <Button IsEnabled="{Binding IsNotRunning}"
@@ -637,10 +683,10 @@
                                 HorizontalAlignment="Right"
                                 Width="150"
                                 Height="50"
-                                BorderBrush="#a8a8a8"
+                                BorderBrush="ForestGreen"
                                 BorderThickness="1"
                                 Foreground="White"
-                                Background="#a8a8a8"
+                                Background="ForestGreen"
                                 FontSize="16"
                                 FontWeight="Bold"
                                 >
