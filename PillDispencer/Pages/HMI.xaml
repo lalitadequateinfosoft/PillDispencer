@@ -703,7 +703,7 @@
                 </Border>
             </Grid>
             <Grid Grid.Row="2">
-                <TextBlock TextWrapping="WrapWithOverflow" HorizontalAlignment="Center" x:Name="MessageLog" FontSize="25" FontWeight="Bold" Width="Auto" Height="Auto" Foreground="Red"/>
+                <TextBlock TextWrapping="WrapWithOverflow" HorizontalAlignment="Center" x:Name="MessageLog" FontSize="20" FontWeight="Bold" Width="Auto" Height="Auto" Foreground="Red"/>
             </Grid>
         </Grid>
     </Border>

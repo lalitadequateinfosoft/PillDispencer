@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Media.TextFormatting;
 using System.Windows.Threading;
 using utils;
@@ -79,7 +80,7 @@ namespace PillDispencer.Pages
         #region page function
         private void Next_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Starting Next Weight");
+            MessageBox.Show("Starting Next batch..");
             StartBatch();
         }
 
@@ -152,7 +153,7 @@ namespace PillDispencer.Pages
                 model.Zero = 0;
                 model.Span = 0;
                 model.Factor = 0;
-                model.CalculateSpan = false;
+                model.CalculateSpan = true;
                 model.ActualWeight = 0;
                 model.Weight = 0;
                 model.WeightPercentage = 0;
@@ -251,7 +252,9 @@ namespace PillDispencer.Pages
                         yellow.BorderBrush = (Brush)bc.ConvertFromString("#e6e6e6");
                         yellow.IsChecked = false;
                         TextYellow.Content = "OFF";
+                        MessageLog.Text = "Processing Stopped.";
                     }));
+
                     return;
                 }
             }
@@ -402,6 +405,7 @@ namespace PillDispencer.Pages
                 {
                     case (int)Model.Module_Device_Type.UART:
                         serialPort.DataReceived += WeightDevice_DataReceived;
+                        //serialPort.ReadTimeout= 1000;
                         break;
                     case (int)Model.Module_Device_Type.ModBus:
                         serialPort.DataReceived += ControlDevice_DataReceived;
@@ -530,10 +534,16 @@ namespace PillDispencer.Pages
                 case 1:
                     try
                     {
+                        
                         //int i = 0;
                         weighing.RecIdx = 0;
                         weighing.RecState = 1;
                         recBuf = new byte[weighing.SerialDevice.BytesToRead];
+                        //if(recBuf.Length<=30)
+                        //{
+                        //    recBuf = new byte[REC_BUF_SIZE];
+                        //    return;
+                        //}
                         weighing.SerialDevice.Read(recBuf, 0, recBuf.Length);
                         weighing.ReceiveBufferQueue = new Queue<byte[]>();
                         weighing.ReceiveBufferQueue.Enqueue(recBuf);
@@ -822,6 +832,14 @@ namespace PillDispencer.Pages
             try
             {
                 string log = string.Empty;
+                _dispathcer.Invoke(new Action(() =>
+                {
+                    MessageLog.Text = "Reading weight..";
+
+                }));
+
+                log = "Reading weight..";
+                LogWriter.LogWrite(log, sessionId);
                 if (_recData.MbTgm.Length > 0 && _recData.MbTgm.Length > readIndex)
                 {
                     byte[] bytestToRead = _recData.MbTgm.Skip(readIndex).ToArray();
@@ -830,15 +848,17 @@ namespace PillDispencer.Pages
                     string actualdata = Regex.Replace(str, @"[^\t\r\n -~]", "_").RemoveWhitespace().Trim();
                     if (string.IsNullOrWhiteSpace(actualdata)) return;
 
+                    log = "Received raw data : " + actualdata;
+                    LogWriter.LogWrite(log, sessionId);
 
-                    //if(actualdata.StartsWith("_") || actualdata.EndsWith("_"))
+                    //if (actualdata.StartsWith("_") || actualdata.EndsWith("_"))
                     //{
                     //    actualdata = filterString(actualdata);
                     //}
-                    
-                    //if(!actualdata.EndsWith("m"))
+
+                    //if (!actualdata.EndsWith("m"))
                     //{
-                    //    actualdata= actualdata.EndsWith("m")==false? actualdata.Remove(actualdata.Length - 1, 1) : actualdata;
+                    //    actualdata = actualdata.EndsWith("m") == false ? actualdata.Remove(actualdata.Length - 1, 1) : actualdata;
                     //    actualdata = filterString(actualdata);
                     //}
 
@@ -848,8 +868,7 @@ namespace PillDispencer.Pages
                     var lastitem = data[data.Length - 1];
                     var outP = lastitem.ToLower().ToString();
 
-                    log = "Received raw data : " + actualdata;
-                    LogWriter.LogWrite(log, sessionId);
+
 
 
                     if (!string.IsNullOrEmpty(outP))
@@ -857,17 +876,10 @@ namespace PillDispencer.Pages
                         Regex re = new Regex(@"\d+");
                         Match m = re.Match(outP);
                         decimal balance = Convert.ToDecimal(m.Value);
-                        log = "Received filtered raw data : " + balance;
+                        log = "Filtered raw data : " + balance;
                         LogWriter.LogWrite(log, sessionId);
 
-                        _dispathcer.Invoke(new Action(() =>
-                        {
-                            MessageLog.Text = "Reading weight..";
 
-                        }));
-
-                        log = "Reading weight..";
-                        LogWriter.LogWrite(log, sessionId);
                         if (hMIViewModel.Zero <= 0 && hMIViewModel.IsNotRunning == true)
                         {
                             log = "Zero value has been set to " + balance;
@@ -964,7 +976,7 @@ namespace PillDispencer.Pages
                                 }));
                                 return;
                             }
-                            
+
                             return;
                         }
 
@@ -973,7 +985,7 @@ namespace PillDispencer.Pages
 
                         if (hMIViewModel.IsNotRunning == false)
                         {
-                            if (hMIViewModel.SetPoint1Percent > 0 &&  hMIViewModel.SetPoint2Percent > 0)
+                            if (hMIViewModel.SetPoint1Percent > 0 && hMIViewModel.SetPoint2Percent > 0)
                             {
                                 hMIViewModel.SetPoint1 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint1Percent) / 100) * hMIViewModel.ActualWeight, 2);
                                 hMIViewModel.SetPoint2 = Math.Round((Convert.ToDecimal(hMIViewModel.SetPoint2Percent) / 100) * hMIViewModel.ActualWeight, 2);
@@ -1109,7 +1121,7 @@ namespace PillDispencer.Pages
 
         }
 
-      public  string filterString(string filter)
+        public string filterString(string filter)
         {
             if (string.IsNullOrWhiteSpace(filter)) return filter;
             while (filter.StartsWith("_") || filter.EndsWith("_"))
@@ -1117,7 +1129,7 @@ namespace PillDispencer.Pages
                 filter = filter.StartsWith("_") == true ? filter.Substring(1) : filter;
                 filter = filter.EndsWith("_") == true ? filter.Remove(filter.Length - 1, 1) : filter;
             }
-            return filter;  
+            return filter;
         }
 
         void BatchCompleted()
@@ -1299,14 +1311,13 @@ namespace PillDispencer.Pages
         private void Span_TextChanged(object sender, TextChangedEventArgs e)
         {
             var textb = sender as System.Windows.Controls.TextBox;
-            if (this.DataContext is HMIViewModel model)
+
+            if (!string.IsNullOrEmpty(textb.Text.ToString()))
             {
-                if (!string.IsNullOrEmpty(textb.Text.ToString()))
-                {
-                    model.Span = Convert.ToDecimal(textb.Text.ToString());
-                    model.CalculateSpan = true;
-                }
+                hMIViewModel.Span = Convert.ToDecimal(textb.Text.ToString());
+                hMIViewModel.CalculateSpan = true;
             }
+
         }
 
         private void WeightCheckCustomValue_TextChanged(object sender, TextChangedEventArgs e)
@@ -1314,10 +1325,9 @@ namespace PillDispencer.Pages
             var text = sender as System.Windows.Controls.TextBox;
             if (!string.IsNullOrEmpty(text.Text) && CustomCheck.IsChecked == true)
             {
-                if (this.DataContext is HMIViewModel model)
-                {
-                    model.SetPoint1Percent = Math.Round(Convert.ToDecimal(text.Text.ToString()), 2);
-                }
+
+                hMIViewModel.SetPoint1Percent = Math.Round(Convert.ToDecimal(text.Text.ToString()), 2);
+
             }
         }
 
@@ -1326,10 +1336,7 @@ namespace PillDispencer.Pages
             var text = sender as System.Windows.Controls.TextBox;
             if (!string.IsNullOrEmpty(text.Text) && CustomControlCheck.IsChecked == true)
             {
-                if (this.DataContext is HMIViewModel model)
-                {
-                    model.SetPoint2Percent = Math.Round(Convert.ToDecimal(text.Text.ToString()), 2);
-                }
+                hMIViewModel.SetPoint2Percent = Math.Round(Convert.ToDecimal(text.Text.ToString()), 2);
             }
         }
 
@@ -1338,24 +1345,22 @@ namespace PillDispencer.Pages
             var radio = sender as RadioButton;
             if (radio.IsChecked == true)
             {
-                if (this.DataContext is HMIViewModel model)
-                {
-                    if (radio.Tag.ToString() == "Custom")
-                    {
-                        if (!string.IsNullOrEmpty(WeightCheckCustomValue.Text.ToString()))
-                        {
-                            if (Regex.IsMatch(WeightCheckCustomValue.Text.ToString(), @"^\d+$"))
-                            {
-                                model.SetPoint1Percent = Math.Round(Convert.ToDecimal(WeightCheckCustomValue.Text.ToString()), 2);
-                            }
 
+                if (radio.Tag.ToString() == "Custom")
+                {
+                    if (!string.IsNullOrEmpty(WeightCheckCustomValue.Text.ToString()))
+                    {
+                        if (Regex.IsMatch(WeightCheckCustomValue.Text.ToString(), @"^\d+$"))
+                        {
+                            hMIViewModel.SetPoint1Percent = Math.Round(Convert.ToDecimal(WeightCheckCustomValue.Text.ToString()), 2);
                         }
                     }
-                    else
-                    {
-                        model.SetPoint1Percent = Convert.ToDecimal(radio.Tag.ToString());
-                    }
                 }
+                else
+                {
+                    hMIViewModel.SetPoint1Percent = Convert.ToDecimal(radio.Tag.ToString());
+                }
+
             }
 
         }
@@ -1364,25 +1369,26 @@ namespace PillDispencer.Pages
             var radio = sender as RadioButton;
             if (radio.IsChecked == true)
             {
-                if (this.DataContext is HMIViewModel model)
-                {
-                    if (radio.Tag.ToString() == "Custom")
-                    {
-                        if (!string.IsNullOrEmpty(ControlCheckCustomValue.Text.ToString()))
-                        {
-                            if (Regex.IsMatch(ControlCheckCustomValue.Text.ToString(), @"^\d+$"))
-                            {
-                                model.SetPoint2Percent = Math.Round(Convert.ToDecimal(ControlCheckCustomValue.Text.ToString()), 2);
-                            }
 
-                        }
-                    }
-                    else
+                if (radio.Tag.ToString() == "Custom")
+                {
+                    if (!string.IsNullOrEmpty(ControlCheckCustomValue.Text.ToString()))
                     {
-                        model.SetPoint2Percent = Convert.ToDecimal(radio.Tag.ToString());
+                        if (Regex.IsMatch(ControlCheckCustomValue.Text.ToString(), @"^\d+$"))
+                        {
+                            hMIViewModel.SetPoint2Percent = Math.Round(Convert.ToDecimal(ControlCheckCustomValue.Text.ToString()), 2);
+                        }
+
                     }
                 }
+                else
+                {
+                    hMIViewModel.SetPoint2Percent = Convert.ToDecimal(radio.Tag.ToString());
+                }
+
             }
         }
+
+
     }
 }
